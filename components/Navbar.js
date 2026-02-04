@@ -22,7 +22,7 @@ export default function Navbar() {
   const navLinks = [
     { name: 'inicio', href: '/' },
     { name: 'book', href: '/book' },
-    { name: 'reservar', href: '/reservar' },
+    { name: 'turnos', href: '/reservar' },
   ];
 
   return (

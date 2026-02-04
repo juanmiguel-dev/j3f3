@@ -249,7 +249,7 @@ export default function Home() {
               href="/reservar" 
               className="inline-flex items-center gap-2 text-white font-bold tracking-widest uppercase group hover:text-red-500 transition-colors mt-4"
             >
-              Reservar Consulta <ArrowRight className="w-5 h-5 transform group-hover:translate-x-2 transition-transform" />
+              TURNOS <ArrowRight className="w-5 h-5 transform group-hover:translate-x-2 transition-transform" />
             </Link>
           </motion.div>
         </div>

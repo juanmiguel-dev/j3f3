@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function BookPage() {
   return (
-    <div className="min-h-screen pt-32 pb-12 px-4 sm:px-6 lg:px-8 bg-zinc-900">
+    <div className="min-h-screen pt-32 pb-12 px-4 sm:px-6 lg:px-8 bg-black">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4 tracking-widest">BOOK</h1>
