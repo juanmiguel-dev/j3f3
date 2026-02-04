@@ -20,7 +20,7 @@ export default function Footer() {
           </a>
           
           <a 
-            href="https://wa.me/5491112345678" /* Reemplazar con número real si se tiene */
+            href="https://wa.me/5492233459214" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="text-gray-400 hover:text-white transition-colors hover:scale-110 transform duration-300" 

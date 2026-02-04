@@ -40,7 +40,7 @@ export default function GalleryGrid() {
             key={tattoo.id}
             layoutId={`card-${tattoo.id}`}
             onClick={() => setSelectedId(tattoo.id)}
-            className="group relative aspect-square overflow-hidden rounded-xl bg-zinc-800 cursor-pointer border-2 border-transparent hover:border-white/80 hover:shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-300"
+            className="group relative aspect-square overflow-hidden rounded-xl bg-zinc-800 cursor-pointer border-2 border-[#222] hover:border-white/80 hover:shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-300"
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.3 }}
           >
