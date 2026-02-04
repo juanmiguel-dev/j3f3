@@ -40,7 +40,7 @@ export default function GalleryGrid() {
             key={tattoo.id}
             layoutId={`card-${tattoo.id}`}
             onClick={() => setSelectedId(tattoo.id)}
-            className="group relative aspect-square overflow-hidden rounded-xl bg-zinc-800 cursor-pointer"
+            className="group relative aspect-square overflow-hidden rounded-xl bg-zinc-800 cursor-pointer border-2 border-transparent hover:border-white/80 hover:shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-300"
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.3 }}
           >
@@ -52,7 +52,7 @@ export default function GalleryGrid() {
               className="object-cover transition-transform duration-500 group-hover:scale-110"
             />
             {/* Overlay sutil solo para indicar interactividad, sin texto */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-white/10 transition-colors duration-300" />
+            <div className="absolute inset-0 bg-transparent transition-colors duration-300" />
           </motion.div>
         ))}
       </div>
