@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter); /* Ensure this matches layout configuration */
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  min-height: 100vh;
+  overflow-x: hidden; /* Prevent horizontal scroll from animations */
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #09090b; 
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a; 
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46; 
+}
+
+/* Eternal Chrome Text Effect */
+@keyframes chrome-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.eternal-chrome-text {
+  background: linear-gradient(
+    270deg,
+    #ffffff 0%,
+    #a1a1aa 10%,
+    #ffffff 20%,
+    #71717a 30%,
+    #ffffff 40%,
+    #52525b 50%,
+    #ffffff 60%,
+    #71717a 70%,
+    #ffffff 80%,
+    #a1a1aa 90%,
+    #ffffff 100%
+  );
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: chrome-flow 4s linear infinite;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+/* Option 2: Mystical Aura (If preferred, but Chrome fits Tattoo better usually) */
+.mystic-text {
+  background: linear-gradient(
+    90deg,
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #00ff00,
+    #0000ff,
+    #4b0082,
+    #8f00ff
+  );
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: chrome-flow 8s ease infinite;
+}
