@@ -178,7 +178,7 @@ export default function Home() {
           >
             <source src="/tattoos/porque-tatuo.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-black/90 backdrop-blur-[2px]" />
+          <div className="absolute inset-0 bg-black/[0.74] backdrop-blur-[2px]" />
         </div>
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
