@@ -196,7 +196,7 @@ export default function Home() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="text-left flex flex-col gap-8"
+            className="text-left flex flex-col gap-8 relative z-30"
           >
             <div>
               <h2 className="text-sm font-bold tracking-[0.3em] text-red-500 uppercase mb-2">
