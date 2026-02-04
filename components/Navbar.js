@@ -147,8 +147,8 @@ export default function Navbar() {
                <div className="flex justify-between items-center text-zinc-500 text-sm font-mono uppercase">
                   <span>© 2026 J3R3F3</span>
                   <div className="flex gap-4">
-                    <a href="https://instagram.com" className="hover:text-white transition-colors">Instagram</a>
-                    <a href="#" className="hover:text-white transition-colors">Email</a>
+                    <a href="https://www.instagram.com/j3r3f3/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram</a>
+                    <a href="https://wa.me/5492233459214" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">WHATSAPP</a>
                   </div>
                </div>
             </div>
