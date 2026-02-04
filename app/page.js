@@ -187,7 +187,6 @@ export default function Home() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="hidden md:block"
         >
           <CrazyVideo />
         </motion.div>
