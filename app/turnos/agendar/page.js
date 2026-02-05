@@ -13,11 +13,12 @@ export default function AgendarPage() {
         </p>
       </div>
 
-      <div className="w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl">
+      <div className="w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl h-[700px]">
         <InlineWidget 
-          url="https://calendly.com/j3r3f3/continuacion"
+          url="https://calendly.com/jeremiasfeldman/30min"
           styles={{
-            height: '700px',
+            height: '100%',
+            width: '100%',
             minWidth: '320px',
           }}
           pageSettings={{
