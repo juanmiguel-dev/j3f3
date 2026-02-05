@@ -12,7 +12,7 @@ const TATTOO_STYLES = [
   { id: 'coverup', label: 'Cover up' },
 ];
 
-export default function BookingPage() {
+export default function NewProjectPage() {
   const [step, setStep] = useState(1);
   const fileInputRef = useRef(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -302,7 +302,7 @@ export default function BookingPage() {
 
               <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl">
                 <InlineWidget 
-                  url="https://calendly.com/j3r3f3/consulta"
+                  url="https://calendly.com/jeremiasfeldman/30min"
                   styles={{
                     height: '700px',
                     minWidth: '320px',

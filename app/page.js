@@ -245,7 +245,7 @@ export default function Home() {
             </div>
             
             <Link 
-              href="/reservar" 
+              href="/turnos" 
               className="inline-flex items-center gap-2 text-white font-bold tracking-widest uppercase group hover:text-red-500 transition-colors mt-4"
             >
               TURNOS <ArrowRight className="w-5 h-5 transform group-hover:translate-x-2 transition-transform" />
