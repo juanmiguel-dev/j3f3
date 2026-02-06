@@ -86,7 +86,7 @@ export default function AgendarPage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-6"
+            className="lg:col-span-7"
           >
             <div className="sticky top-32 group">
               <div className="absolute -inset-1 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-3xl blur opacity-70 group-hover:opacity-100 transition duration-1000"></div>
@@ -153,7 +153,7 @@ export default function AgendarPage() {
           </motion.div>
 
           {/* Slots Section */}
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-5">
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
