@@ -86,7 +86,7 @@ export default function AgendarPage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-5"
+            className="lg:col-span-6"
           >
             <div className="sticky top-32 group">
               <div className="absolute -inset-1 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-3xl blur opacity-70 group-hover:opacity-100 transition duration-1000"></div>
@@ -111,7 +111,7 @@ export default function AgendarPage() {
                   locale={es}
                   className="w-full flex justify-center p-0"
                   classNames={{
-                    months: "flex flex-col space-y-4",
+                    months: "flex flex-col space-y-4 w-full",
                     month: "space-y-6 w-full",
                     caption: "flex justify-center pt-2 relative items-center mb-6",
                     caption_label: "text-lg font-black text-white capitalize tracking-wide",
@@ -119,13 +119,13 @@ export default function AgendarPage() {
                     nav_button: "h-8 w-8 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white transition-all",
                     nav_button_previous: "absolute left-0",
                     nav_button_next: "absolute right-0",
-                    table: "w-full border-collapse space-y-1",
-                    head_row: "flex w-full justify-center gap-1 mb-2",
-                    head_cell: "text-zinc-500 font-bold text-xs uppercase tracking-widest w-10 h-10 flex items-center justify-center",
-                    row: "flex w-full justify-center gap-1 mt-2",
+                    table: "w-full border-collapse",
+                    head_row: "grid grid-cols-7 mb-2",
+                    head_cell: "text-zinc-500 font-bold text-xs uppercase tracking-widest h-10 flex items-center justify-center",
+                    row: "grid grid-cols-7 mt-2",
                     cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
                     day: cn(
-                      "group relative h-10 w-10 p-0 font-medium text-zinc-400 rounded-full transition-all hover:bg-zinc-800 hover:text-white flex items-center justify-center",
+                      "group relative h-10 w-10 mx-auto p-0 font-medium text-zinc-400 rounded-full transition-all hover:bg-zinc-800 hover:text-white flex items-center justify-center",
                       "data-[selected]:bg-white data-[selected]:text-black data-[selected]:font-bold data-[selected]:shadow-md data-[selected]:shadow-white/10",
                       "data-[today]:text-white data-[today]:font-bold data-[today]:after:absolute data-[today]:after:bottom-1 data-[today]:after:left-1/2 data-[today]:after:-translate-x-1/2 data-[today]:after:w-1 data-[today]:after:h-1 data-[today]:after:bg-white data-[today]:after:rounded-full"
                     ),
@@ -153,7 +153,7 @@ export default function AgendarPage() {
           </motion.div>
 
           {/* Slots Section */}
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-6">
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
