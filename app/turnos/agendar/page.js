@@ -107,7 +107,7 @@ export default function AgendarPage() {
                   </h2>
                 </div>
                 
-                <div className="flex justify-center">
+                <div className="w-full">
                   <Calendar
                     mode="single"
                     selected={date}
