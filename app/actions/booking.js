@@ -93,6 +93,7 @@ export async function getAllSlots() {
  * Inicia el proceso de reserva (bloquea el turno temporalmente)
  */
 export async function initiateBooking(slotId) {
+  console.log('Initiating booking for slotId:', slotId);
   const supabase = await createClient();
   
   // 1. Verificar si sigue disponible
@@ -102,7 +103,12 @@ export async function initiateBooking(slotId) {
     .eq('id', slotId)
     .single();
     
+  if (fetchError) {
+    console.error('Error fetching slot:', fetchError);
+  }
+  
   if (fetchError || !slot) {
+    console.log('Slot not found or error:', slotId);
     return { error: 'Turno no encontrado' };
   }
   

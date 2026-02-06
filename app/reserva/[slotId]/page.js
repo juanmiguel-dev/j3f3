@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -10,7 +10,7 @@ import { ArrowLeft, CheckCircle, Wallet, Building2, User, Mail, Phone, Instagram
 import Link from 'next/link';
 
 export default function BookingConfirmationPage({ params }) {
-  const { slotId } = params;
+  const { slotId } = use(params);
   const router = useRouter();
   const [slot, setSlot] = useState(null);
   const [loading, setLoading] = useState(true);
