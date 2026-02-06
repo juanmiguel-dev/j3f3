@@ -14,12 +14,14 @@ import {
   Calendar as CalendarIcon, 
   CheckCircle2, 
   AlertCircle, 
-  MoreVertical,
-  Trash2,
-  User,
-  LayoutGrid,
-  List
+  MoreVertical, 
+  Trash2, 
+  User, 
+  LayoutGrid, 
+  List,
+  ArrowRight
 } from 'lucide-react';
+import Link from 'next/link';
 import {
   Dialog,
   DialogContent,
@@ -380,6 +382,68 @@ export default function AdminAgendaPage() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Upcoming Appointments Row */}
+      <div className="mt-8">
+        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <CalendarIcon className="w-5 h-5 text-emerald-500" />
+          Próximos Turnos Agendados
+        </h2>
+        
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-32 bg-zinc-900/50 rounded-2xl animate-pulse border border-zinc-800/50" />
+            ))}
+          </div>
+        ) : slots.filter(s => (s.status === 'confirmed' || s.status === 'pending') && new Date(s.start_time) >= new Date()).length === 0 ? (
+          <div className="bg-zinc-900/30 border border-dashed border-zinc-800 rounded-2xl p-8 text-center">
+            <p className="text-zinc-500">No hay turnos próximos agendados.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {slots
+              .filter(s => (s.status === 'confirmed' || s.status === 'pending') && new Date(s.start_time) >= new Date())
+              .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
+              .slice(0, 4)
+              .map((slot) => (
+                <div key={slot.id} className="bg-zinc-900/80 border border-zinc-800 p-5 rounded-2xl hover:border-zinc-600 transition-colors group relative overflow-hidden">
+                  <div className={`absolute top-0 left-0 w-1 h-full ${slot.status === 'confirmed' ? 'bg-blue-500' : 'bg-yellow-500'}`} />
+                  
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                      {format(new Date(slot.start_time), "EEEE d 'de' MMMM", { locale: es })}
+                    </div>
+                    <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                      slot.status === 'confirmed' ? 'bg-blue-500/10 text-blue-400' : 'bg-yellow-500/10 text-yellow-400'
+                    }`}>
+                      {slot.status === 'confirmed' ? 'Confirmado' : 'Pendiente'}
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <div className="text-2xl font-black text-white tracking-tight flex items-center gap-1">
+                      {format(new Date(slot.start_time), 'HH:mm')}
+                      <span className="text-xs text-zinc-500 font-normal mt-1">Hs</span>
+                    </div>
+                    <div className="text-sm text-zinc-400 mt-1 truncate">
+                      {slot.client_name || 'Cliente sin nombre'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-zinc-800/50">
+                     <span className="text-xs text-zinc-500 font-mono">
+                       ${slot.price_ars?.toLocaleString('es-AR') || '-'}
+                     </span>
+                     <Link href={`/admin/agenda?date=${format(new Date(slot.start_time), 'yyyy-MM-dd')}`} className="text-xs text-white hover:underline flex items-center gap-1">
+                       Ver día <ArrowRight className="w-3 h-3" />
+                     </Link>
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}
