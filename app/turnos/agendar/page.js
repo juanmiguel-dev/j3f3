@@ -125,21 +125,21 @@ export default function AgendarPage() {
                     row: "flex w-full mt-2 justify-between",
                     cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
                     day: cn(
-                      "relative h-10 w-10 p-0 font-medium text-zinc-400 rounded-xl transition-all hover:bg-zinc-900 hover:text-white",
-                      "data-[selected]:bg-white data-[selected]:text-black data-[selected]:font-bold data-[selected]:shadow-lg data-[selected]:shadow-white/20 data-[selected]:scale-110",
-                      "data-[today]:bg-zinc-900 data-[today]:text-white data-[today]:border data-[today]:border-zinc-800"
+                      "group relative h-10 w-10 p-0 font-medium text-zinc-400 rounded-full transition-all hover:bg-zinc-800 hover:text-white",
+                      "data-[selected]:bg-white data-[selected]:text-black data-[selected]:font-bold data-[selected]:shadow-md data-[selected]:shadow-white/10",
+                      "data-[today]:text-white data-[today]:font-bold data-[today]:after:absolute data-[today]:after:bottom-1 data-[today]:after:left-1/2 data-[today]:after:-translate-x-1/2 data-[today]:after:w-1 data-[today]:after:h-1 data-[today]:after:bg-white data-[today]:after:rounded-full"
                     ),
                     day_selected: "bg-white text-black hover:bg-white hover:text-black focus:bg-white focus:text-black",
-                    day_today: "bg-zinc-900 text-white",
-                    day_outside: "text-zinc-700 opacity-50",
-                    day_disabled: "text-zinc-700 opacity-50",
+                    day_today: "bg-transparent",
+                    day_outside: "text-zinc-800 opacity-50",
+                    day_disabled: "text-zinc-800 opacity-50",
                     day_hidden: "invisible",
                   }}
                   modifiers={{
                     hasSlots: (date) => hasAvailableSlots(date),
                   }}
                   modifiersClassNames={{
-                    hasSlots: "after:content-[''] after:absolute after:bottom-1.5 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-emerald-500 after:rounded-full after:shadow-[0_0_8px_rgba(16,185,129,0.5)] font-bold text-white"
+                    hasSlots: "text-white font-bold after:content-[''] after:absolute after:top-1.5 after:right-1.5 after:w-1.5 after:h-1.5 after:bg-emerald-500 after:rounded-full after:shadow-[0_0_8px_rgba(16,185,129,0.5)]"
                   }}
                 />
 
