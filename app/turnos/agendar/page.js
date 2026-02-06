@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { getAvailableSlots } from '@/app/actions/booking';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { SimpleCalendar as Calendar } from '@/components/ui/simple-calendar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -192,13 +192,15 @@ export default function AgendarPage() {
                             </div>
                           </div>
                           
-                          <Link href={`/reserva/${slot.id}`} className="w-full sm:w-auto">
-                            <Button 
-                              className="w-full sm:w-auto bg-white text-black hover:bg-zinc-200 font-bold rounded-xl h-12 px-8 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all duration-300"
-                            >
-                              Reservar
-                              <ArrowRight className="w-4 h-4 ml-2" />
-                            </Button>
+                          <Link 
+                            href={`/reserva/${slot.id}`} 
+                            className={cn(
+                              buttonVariants({ variant: "default" }),
+                              "w-full sm:w-auto bg-white text-black hover:bg-zinc-200 font-bold rounded-xl h-12 px-8 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all duration-300"
+                            )}
+                          >
+                            Reservar
+                            <ArrowRight className="w-4 h-4 ml-2" />
                           </Link>
                         </div>
                       </motion.div>
