@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { createTimeSlot, getAllSlots, deleteTimeSlot } from '@/app/actions/booking';
-import { Calendar } from '@/components/ui/calendar';
+import { SimpleCalendar as Calendar } from '@/components/ui/simple-calendar';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -170,31 +170,16 @@ export default function AdminAgendaPage() {
             {/* Calendar Card */}
             <div className="bg-zinc-900/80 border border-zinc-800/50 rounded-2xl p-6 shadow-xl backdrop-blur-md">
               <Calendar
-                mode="single"
                 selected={date}
                 onSelect={setDate}
                 className="rounded-md w-full flex justify-center"
-                classNames={{
-                  head_cell: "text-zinc-500 font-medium text-sm pt-2",
-                  cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-zinc-800 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                  day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-zinc-800 rounded-md transition-colors text-zinc-300",
-                  day_selected: "bg-white text-black hover:bg-zinc-200 hover:text-black focus:bg-white focus:text-black",
-                  day_today: "bg-zinc-800 text-white font-bold",
-                }}
                 modifiers={{
                   hasSlots: (date) => hasSlots(date),
-                }}
-                modifiersStyles={{
-                  hasSlots: { 
-                    fontWeight: 'bold', 
-                    color: '#fff',
-                    position: 'relative'
-                  }
                 }}
               />
               {/* Leyenda visual para días con slots */}
               <div className="mt-4 flex items-center justify-center gap-2 text-xs text-zinc-500">
-                <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
                 <span>Días con turnos activos</span>
               </div>
             </div>
