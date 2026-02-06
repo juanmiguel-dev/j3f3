@@ -165,14 +165,14 @@ export default function AdminAgendaPage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-4 space-y-6"
+            className="lg:col-span-5 space-y-6"
           >
             {/* Calendar Card */}
             <div className="bg-zinc-900/80 border border-zinc-800/50 rounded-2xl p-6 shadow-xl backdrop-blur-md">
               <Calendar
                 selected={date}
                 onSelect={setDate}
-                className="rounded-md w-full flex justify-center"
+                className="rounded-md w-full"
                 modifiers={{
                   hasSlots: (date) => hasSlots(date),
                 }}
@@ -272,7 +272,7 @@ export default function AdminAgendaPage() {
           </motion.div>
 
           {/* Main Content: Slots Grid */}
-          <div className="lg:col-span-8">
+          <div className="lg:col-span-7">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 <List className="w-5 h-5 text-zinc-500" />
