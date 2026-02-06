@@ -95,7 +95,7 @@ export default function AgendarPage() {
             transition={{ delay: 0.2 }}
             className="w-full flex justify-center lg:justify-end"
           >
-            <div className="sticky top-32 group w-full max-w-[400px]">
+            <div className="sticky top-32 group w-full">
               <div className="absolute -inset-1 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-3xl blur opacity-70 group-hover:opacity-100 transition duration-1000"></div>
               <div className="relative bg-zinc-950 border border-zinc-800/50 rounded-2xl p-6 shadow-2xl">
                 <div className="flex items-center justify-between mb-8">
