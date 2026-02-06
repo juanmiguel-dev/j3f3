@@ -106,24 +106,63 @@ export async function initiateBooking(slotId) {
     return { error: 'Turno no encontrado' };
   }
   
-  if (slot.status !== 'available') {
-    return { error: 'El turno ya no está disponible' };
+  // Si ya está en pending_payment, asumimos que es el mismo usuario refrescando
+  // o alguien que llegó justo antes. En un sistema real usaríamos sesiones.
+  // Por ahora, si es 'available' lo pasamos a 'pending_payment'.
+  if (slot.status === 'available') {
+      const { error: updateError } = await supabase
+        .from('time_slots')
+        .update({ status: 'pending_payment' })
+        .eq('id', slotId);
+        
+      if (updateError) {
+        return { error: 'Error al iniciar reserva' };
+      }
+      
+      // Fetch updated slot
+      const { data: updatedSlot } = await supabase
+        .from('time_slots')
+        .select('*')
+        .eq('id', slotId)
+        .single();
+        
+      revalidatePath('/turnos/agendar');
+      return { success: true, slot: updatedSlot };
+  } else if (slot.status === 'pending_payment') {
+      // Allow viewing if already pending (concurrency issue ignored for simplicity)
+      return { success: true, slot };
+  } else {
+      return { error: 'El turno ya no está disponible' };
   }
+}
+
+/**
+ * Confirma los detalles del cliente para la reserva
+ */
+export async function confirmBookingDetails(slotId, formData) {
+  const supabase = await createClient();
   
-  // 2. Actualizar estado a pending_payment
-  // Nota: En un sistema real, querríamos asignar esto a un usuario o sesión temporal
-  // Aquí simplificamos cambiando el estado.
-  const { error: updateError } = await supabase
+  const clientName = formData.get('name');
+  const clientEmail = formData.get('email');
+  const clientPhone = formData.get('phone');
+  const clientInstagram = formData.get('instagram');
+
+  const { error } = await supabase
     .from('time_slots')
-    .update({ status: 'pending_payment' })
+    .update({ 
+      client_name: clientName,
+      client_email: clientEmail,
+      client_phone: clientPhone,
+      client_instagram: clientInstagram
+    })
     .eq('id', slotId);
-    
-  if (updateError) {
-    return { error: 'Error al iniciar reserva' };
+
+  if (error) {
+    console.error('Error updating client details:', error);
+    return { error: 'Error al guardar datos: ' + error.message };
   }
-  
-  revalidatePath('/turnos/agendar');
-  return { success: true, slot };
+
+  return { success: true };
 }
 
 /**
