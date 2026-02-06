@@ -109,7 +109,7 @@ export default function AgendarPage() {
                   selected={date}
                   onSelect={setDate}
                   locale={es}
-                  className="w-full flex justify-center p-0"
+                  className="w-full p-0"
                   classNames={{
                     months: "flex flex-col space-y-4 w-full",
                     month: "space-y-6 w-full",
@@ -125,7 +125,7 @@ export default function AgendarPage() {
                     row: "flex w-full mt-2",
                     cell: "h-14 flex-1 flex items-center justify-center p-0 relative focus-within:relative focus-within:z-20",
                     day: cn(
-                      "group relative h-10 w-10 mx-auto p-0 font-medium text-zinc-400 rounded-full transition-all hover:bg-zinc-800 hover:text-white flex items-center justify-center",
+                      "group relative h-10 w-full mx-auto p-0 font-medium text-zinc-400 rounded-full transition-all hover:bg-zinc-800 hover:text-white flex items-center justify-center",
                       "data-[selected]:bg-white data-[selected]:text-black data-[selected]:font-bold data-[selected]:shadow-md data-[selected]:shadow-white/10",
                       "data-[today]:text-white data-[today]:font-bold data-[today]:after:absolute data-[today]:after:bottom-1 data-[today]:after:left-1/2 data-[today]:after:-translate-x-1/2 data-[today]:after:w-1 data-[today]:after:h-1 data-[today]:after:bg-white data-[today]:after:rounded-full"
                     ),
