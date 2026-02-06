@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { createTimeSlot, getAllSlots, deleteTimeSlot, approveBooking, completeBooking } from '@/app/actions/booking';
+import { createTimeSlot, getAllSlots, deleteTimeSlot, approveBooking, completeBooking, updateTimeSlot } from '@/app/actions/booking';
 import { SimpleCalendar as Calendar } from '@/components/ui/simple-calendar';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,7 +19,11 @@ import {
   User, 
   LayoutGrid, 
   List,
-  ArrowRight
+  ArrowRight,
+  Pencil,
+  Instagram,
+  Mail,
+  Phone
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -48,6 +52,10 @@ export default function AdminAgendaPage() {
   const [selectedTime, setSelectedTime] = useState('14:00');
   const [selectedType, setSelectedType] = useState('3'); // '3' or '6'
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Edit state
+  const [slotToEdit, setSlotToEdit] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
   // Delete state
   const [slotToDelete, setSlotToDelete] = useState(null);
@@ -119,6 +127,25 @@ export default function AdminAgendaPage() {
     } else {
       alert('Error al completar: ' + result.error);
     }
+  }
+
+  async function handleUpdateSlot(e) {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    if (!slotToEdit) return;
+
+    const formData = new FormData(e.target);
+    const result = await updateTimeSlot(slotToEdit.id, formData);
+    
+    if (result.success) {
+      await fetchSlots();
+      setIsEditModalOpen(false);
+      setSlotToEdit(null);
+    } else {
+      alert('Error al actualizar: ' + result.error);
+    }
+    setIsSubmitting(false);
   }
 
   // Helper to check if a day has slots
@@ -397,24 +424,37 @@ export default function AdminAgendaPage() {
                                   }}
                                 >
                                   <CheckCircle2 className="w-4 h-4" />
-                                 </Button>
-                               )}
-                               {slot.status === 'confirmed' && (
-                                 <Button
-                                   size="sm"
-                                   variant="ghost"
-                                   className="h-8 w-8 p-0 rounded-full hover:bg-purple-500/20 text-zinc-500 hover:text-purple-500 transition-colors"
-                                   title="Marcar como Completado"
-                                   onClick={(e) => {
-                                     e.stopPropagation();
-                                     handleCompleteSlot(slot.id);
-                                   }}
-                                 >
-                                   <CheckCircle2 className="w-4 h-4" />
-                                 </Button>
-                               )}
-                               <Button 
-                                 size="sm" 
+                                </Button>
+                              )}
+                              {slot.status === 'confirmed' && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-8 w-8 p-0 rounded-full hover:bg-purple-500/20 text-zinc-500 hover:text-purple-500 transition-colors"
+                                  title="Marcar como Completado"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCompleteSlot(slot.id);
+                                  }}
+                                >
+                                  <CheckCircle2 className="w-4 h-4" />
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0 rounded-full hover:bg-blue-500/20 text-zinc-500 hover:text-blue-500 transition-colors"
+                                title="Editar Turno"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSlotToEdit(slot);
+                                  setIsEditModalOpen(true);
+                                }}
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
                                 variant="ghost" 
                                 className="h-8 w-8 p-0 rounded-full hover:bg-red-500/20 text-zinc-500 hover:text-red-500 transition-colors"
                                 onClick={(e) => {
@@ -515,6 +555,146 @@ export default function AdminAgendaPage() {
           </div>
         )}
       </div>
+
+      {/* Edit Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="bg-zinc-950 border-zinc-800 text-white sm:max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Editar Turno</DialogTitle>
+          </DialogHeader>
+          
+          {slotToEdit && (
+            <form onSubmit={handleUpdateSlot} className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-zinc-400">Fecha</label>
+                  <input 
+                    type="date" 
+                    name="date"
+                    defaultValue={format(new Date(slotToEdit.start_time), 'yyyy-MM-dd')}
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/20"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-zinc-400">Hora</label>
+                  <input 
+                    type="time" 
+                    name="time"
+                    defaultValue={format(new Date(slotToEdit.start_time), 'HH:mm')}
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/20"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-zinc-400">Duración (hs)</label>
+                  <input 
+                    type="number" 
+                    name="duration"
+                    defaultValue={slotToEdit.duration_hours}
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/20"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-zinc-400">Precio (ARS)</label>
+                  <input 
+                    type="number" 
+                    name="price"
+                    defaultValue={slotToEdit.price_ars}
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/20"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="border-t border-zinc-800 pt-4 mt-4">
+                <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                  <User className="w-4 h-4 text-zinc-500" />
+                  Datos del Cliente
+                </h4>
+                
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-xs text-zinc-500">Nombre Completo</label>
+                    <input 
+                      type="text" 
+                      name="client_name"
+                      defaultValue={slotToEdit.client_name || ''}
+                      placeholder="Nombre del cliente"
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/20"
+                    />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <label className="text-xs text-zinc-500">Email</label>
+                    <div className="relative">
+                      <Mail className="w-3 h-3 absolute left-3 top-3 text-zinc-500" />
+                      <input 
+                        type="email" 
+                        name="client_email"
+                        defaultValue={slotToEdit.client_email || ''}
+                        placeholder="email@ejemplo.com"
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-8 pr-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/20"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs text-zinc-500">Teléfono</label>
+                      <div className="relative">
+                        <Phone className="w-3 h-3 absolute left-3 top-3 text-zinc-500" />
+                        <input 
+                          type="tel" 
+                          name="client_phone"
+                          defaultValue={slotToEdit.client_phone || ''}
+                          placeholder="+54..."
+                          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-8 pr-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/20"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-zinc-500">Instagram</label>
+                      <div className="relative">
+                        <Instagram className="w-3 h-3 absolute left-3 top-3 text-zinc-500" />
+                        <input 
+                          type="text" 
+                          name="client_instagram"
+                          defaultValue={slotToEdit.client_instagram || ''}
+                          placeholder="@usuario"
+                          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-8 pr-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/20"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 flex gap-3">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="flex-1 text-zinc-400 hover:text-white hover:bg-zinc-900"
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="flex-1 bg-white text-black hover:bg-zinc-200"
+                >
+                  {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
+                </Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Modal */}
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
