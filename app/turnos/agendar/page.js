@@ -168,7 +168,16 @@ export default function AgendarPage() {
               ) : (
                 <div className="grid grid-cols-1 gap-4">
                   <AnimatePresence mode="popLayout">
-                    {selectedDateSlots.map((slot, index) => (
+                    {selectedDateSlots.map((slot, index) => {
+                      const startTime = new Date(slot.start_time);
+                      const endTime = slot.end_time 
+                        ? new Date(slot.end_time) 
+                        : new Date(startTime.getTime() + (slot.duration_hours || 1) * 60 * 60 * 1000);
+                      
+                      // Validate dates to prevent hydration errors
+                      if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) return null;
+
+                      return (
                       <motion.div
                         key={slot.id}
                         initial={{ opacity: 0, y: 20 }}
@@ -180,10 +189,10 @@ export default function AgendarPage() {
                           <div>
                             <div className="flex items-center gap-3 mb-2">
                               <span className="text-2xl font-bold text-white font-mono">
-                                {format(new Date(slot.start_time), 'HH:mm')}
+                                {format(startTime, 'HH:mm')}
                               </span>
                               <span className="text-zinc-500 font-medium">
-                                - {format(new Date(slot.end_time), 'HH:mm')}
+                                - {format(endTime, 'HH:mm')}
                               </span>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-zinc-400">
@@ -204,7 +213,7 @@ export default function AgendarPage() {
                           </Link>
                         </div>
                       </motion.div>
-                    ))}
+                    )})}
                   </AnimatePresence>
                 </div>
               )}
