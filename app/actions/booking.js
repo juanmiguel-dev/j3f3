@@ -130,20 +130,28 @@ export async function initiateBooking(slotId) {
  * Login action
  */
 export async function login(formData) {
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
 
-  const email = formData.get('email')
-  const password = formData.get('password')
+    const email = formData.get('email')
+    const password = formData.get('password')
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
+    console.log('Attempting login for:', email);
 
-  if (error) {
-    return { error: error.message }
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (error) {
+      console.error('Login error from Supabase:', error);
+      return { error: error.message }
+    }
+
+    revalidatePath('/', 'layout')
+    return { success: true }
+  } catch (err) {
+    console.error('Unexpected error in login action:', err);
+    return { error: 'An unexpected error occurred: ' + err.message };
   }
-
-  revalidatePath('/', 'layout')
-  return { success: true }
 }
