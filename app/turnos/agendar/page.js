@@ -119,13 +119,13 @@ export default function AgendarPage() {
                     nav_button: "h-8 w-8 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white transition-all",
                     nav_button_previous: "absolute left-0",
                     nav_button_next: "absolute right-0",
-                    table: "w-full border-collapse",
-                    head_row: "flex justify-between mb-4",
+                    table: "w-full border-collapse space-y-1",
+                    head_row: "flex w-full justify-center gap-1 mb-2",
                     head_cell: "text-zinc-500 font-bold text-xs uppercase tracking-widest w-10 h-10 flex items-center justify-center",
-                    row: "flex w-full mt-2 justify-between",
+                    row: "flex w-full justify-center gap-1 mt-2",
                     cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
                     day: cn(
-                      "group relative h-10 w-10 p-0 font-medium text-zinc-400 rounded-full transition-all hover:bg-zinc-800 hover:text-white",
+                      "group relative h-10 w-10 p-0 font-medium text-zinc-400 rounded-full transition-all hover:bg-zinc-800 hover:text-white flex items-center justify-center",
                       "data-[selected]:bg-white data-[selected]:text-black data-[selected]:font-bold data-[selected]:shadow-md data-[selected]:shadow-white/10",
                       "data-[today]:text-white data-[today]:font-bold data-[today]:after:absolute data-[today]:after:bottom-1 data-[today]:after:left-1/2 data-[today]:after:-translate-x-1/2 data-[today]:after:w-1 data-[today]:after:h-1 data-[today]:after:bg-white data-[today]:after:rounded-full"
                     ),
