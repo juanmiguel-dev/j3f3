@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { createTimeSlot, getAllSlots, deleteTimeSlot } from '@/app/actions/booking';
+import { createTimeSlot, getAllSlots, deleteTimeSlot, approveBooking } from '@/app/actions/booking';
 import { SimpleCalendar as Calendar } from '@/components/ui/simple-calendar';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -100,6 +100,15 @@ export default function AdminAgendaPage() {
       setSlotToDelete(null);
     } else {
       alert('Error al eliminar: ' + result.error);
+    }
+  }
+
+  async function handleApproveSlot(slotId) {
+    const result = await approveBooking(slotId);
+    if (result.success) {
+      await fetchSlots();
+    } else {
+      alert('Error al aprobar: ' + result.error);
     }
   }
 
@@ -359,19 +368,35 @@ export default function AdminAgendaPage() {
                               </p>
                             </div>
                             
-                            {/* Action Button */}
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              className="h-8 w-8 p-0 rounded-full hover:bg-red-500/20 text-zinc-500 hover:text-red-500 transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSlotToDelete(slot);
-                                setIsDeleteModalOpen(true);
-                              }}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            {/* Action Buttons */}
+                            <div className="flex gap-2">
+                              {slot.status === 'pending' && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-8 w-8 p-0 rounded-full hover:bg-green-500/20 text-zinc-500 hover:text-green-500 transition-colors"
+                                  title="Aprobar Turno"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleApproveSlot(slot.id);
+                                  }}
+                                >
+                                  <CheckCircle2 className="w-4 h-4" />
+                                </Button>
+                              )}
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="h-8 w-8 p-0 rounded-full hover:bg-red-500/20 text-zinc-500 hover:text-red-500 transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSlotToDelete(slot);
+                                  setIsDeleteModalOpen(true);
+                                }}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -433,9 +458,25 @@ export default function AdminAgendaPage() {
                   </div>
 
                   <div className="flex items-center justify-between pt-3 border-t border-zinc-800/50">
-                     <span className="text-xs text-zinc-500 font-mono">
-                       ${slot.price_ars?.toLocaleString('es-AR') || '-'}
-                     </span>
+                     <div className="flex items-center gap-2">
+                       <span className="text-xs text-zinc-500 font-mono">
+                         ${slot.price_ars?.toLocaleString('es-AR') || '-'}
+                       </span>
+                       {slot.status === 'pending' && (
+                         <Button
+                           size="sm"
+                           variant="ghost"
+                           className="h-6 w-6 p-0 rounded-full hover:bg-green-500/20 text-zinc-500 hover:text-green-500 transition-colors"
+                           title="Aprobar Turno"
+                           onClick={(e) => {
+                             e.preventDefault();
+                             handleApproveSlot(slot.id);
+                           }}
+                         >
+                           <CheckCircle2 className="w-3 h-3" />
+                         </Button>
+                       )}
+                     </div>
                      <Link href={`/admin/agenda?date=${format(new Date(slot.start_time), 'yyyy-MM-dd')}`} className="text-xs text-white hover:underline flex items-center gap-1">
                        Ver día <ArrowRight className="w-3 h-3" />
                      </Link>

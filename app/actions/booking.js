@@ -45,6 +45,33 @@ export async function createTimeSlot(formData) {
 }
 
 /**
+ * Aprueba un turno pendiente (Admin)
+ */
+export async function approveBooking(slotId) {
+  const supabase = await createClient();
+
+  // Validar sesión
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    return { error: 'No autorizado' };
+  }
+
+  const { error } = await supabase
+    .from('time_slots')
+    .update({ status: 'confirmed' })
+    .eq('id', slotId);
+
+  if (error) {
+    console.error('Error approving slot:', error);
+    return { error: error.message };
+  }
+
+  revalidatePath('/admin/agenda');
+  revalidatePath('/turnos/agendar');
+  return { success: true };
+}
+
+/**
  * Obtiene los turnos disponibles (Server Action)
  */
 export async function getAvailableSlots() {
@@ -159,7 +186,8 @@ export async function confirmBookingDetails(slotId, formData) {
       client_name: clientName,
       client_email: clientEmail,
       client_phone: clientPhone,
-      client_instagram: clientInstagram
+      client_instagram: clientInstagram,
+      status: 'pending' // Pending admin approval
     })
     .eq('id', slotId);
 
