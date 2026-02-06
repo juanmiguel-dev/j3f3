@@ -23,13 +23,20 @@ import { cn } from '@/lib/utils';
 export default function AgendarPage() {
   const [slots, setSlots] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(undefined);
 
   useEffect(() => {
+    setDate(new Date());
     async function loadSlots() {
-      const data = await getAvailableSlots();
-      setSlots(data);
-      setLoading(false);
+      try {
+        const data = await getAvailableSlots();
+        setSlots(data || []);
+      } catch (error) {
+        console.error("Error loading slots:", error);
+        setSlots([]);
+      } finally {
+        setLoading(false);
+      }
     }
     loadSlots();
   }, []);
