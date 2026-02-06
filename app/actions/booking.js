@@ -72,6 +72,33 @@ export async function approveBooking(slotId) {
 }
 
 /**
+ * Marca un turno como completado (Admin)
+ */
+export async function completeBooking(slotId) {
+  const supabase = await createClient();
+
+  // Validar sesión
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    return { error: 'No autorizado' };
+  }
+
+  const { error } = await supabase
+    .from('time_slots')
+    .update({ status: 'completed' })
+    .eq('id', slotId);
+
+  if (error) {
+    console.error('Error completing slot:', error);
+    return { error: error.message };
+  }
+
+  revalidatePath('/admin/agenda');
+  revalidatePath('/turnos/agendar');
+  return { success: true };
+}
+
+/**
  * Obtiene los turnos disponibles (Server Action)
  */
 export async function getAvailableSlots() {

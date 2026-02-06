@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { createTimeSlot, getAllSlots, deleteTimeSlot, approveBooking } from '@/app/actions/booking';
+import { createTimeSlot, getAllSlots, deleteTimeSlot, approveBooking, completeBooking } from '@/app/actions/booking';
 import { SimpleCalendar as Calendar } from '@/components/ui/simple-calendar';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -109,6 +109,15 @@ export default function AdminAgendaPage() {
       await fetchSlots();
     } else {
       alert('Error al aprobar: ' + result.error);
+    }
+  }
+
+  async function handleCompleteSlot(slotId) {
+    const result = await completeBooking(slotId);
+    if (result.success) {
+      await fetchSlots();
+    } else {
+      alert('Error al completar: ' + result.error);
     }
   }
 
@@ -326,13 +335,16 @@ export default function AdminAgendaPage() {
                           ? 'bg-zinc-900/80 border-zinc-800 hover:border-green-500/30' 
                           : slot.status === 'confirmed'
                           ? 'bg-zinc-900/80 border-blue-900/30 hover:border-blue-500/50'
+                          : slot.status === 'completed'
+                          ? 'bg-zinc-900/80 border-purple-900/30 hover:border-purple-500/50 opacity-75'
                           : 'bg-zinc-900/80 border-yellow-900/30 hover:border-yellow-500/50'
                       }`}
                     >
                       {/* Status Stripe */}
                       <div className={`absolute top-0 left-0 w-1.5 h-full ${
                          slot.status === 'available' ? 'bg-green-500' :
-                         slot.status === 'confirmed' ? 'bg-blue-500' : 'bg-yellow-500'
+                         slot.status === 'confirmed' ? 'bg-blue-500' : 
+                         slot.status === 'completed' ? 'bg-purple-500' : 'bg-yellow-500'
                       }`} />
 
                       <div className="p-6 pl-8">
@@ -350,12 +362,15 @@ export default function AdminAgendaPage() {
                           <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
                             slot.status === 'available' ? 'bg-green-500/10 text-green-400' :
                             slot.status === 'confirmed' ? 'bg-blue-500/10 text-blue-400' :
+                            slot.status === 'completed' ? 'bg-purple-500/10 text-purple-400' :
                             'bg-yellow-500/10 text-yellow-400'
                           }`}>
                             {slot.status === 'available' ? <CheckCircle2 className="w-3 h-3" /> :
-                             slot.status === 'confirmed' ? <User className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                             slot.status === 'confirmed' ? <User className="w-3 h-3" /> : 
+                             slot.status === 'completed' ? <CheckCircle2 className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
                             {slot.status === 'available' ? 'Libre' : 
-                             slot.status === 'confirmed' ? 'Ocupado' : 'Pendiente'}
+                             slot.status === 'confirmed' ? 'Ocupado' : 
+                             slot.status === 'completed' ? 'Completado' : 'Pendiente'}
                           </div>
                         </div>
 
@@ -382,10 +397,24 @@ export default function AdminAgendaPage() {
                                   }}
                                 >
                                   <CheckCircle2 className="w-4 h-4" />
-                                </Button>
-                              )}
-                              <Button 
-                                size="sm" 
+                                 </Button>
+                               )}
+                               {slot.status === 'confirmed' && (
+                                 <Button
+                                   size="sm"
+                                   variant="ghost"
+                                   className="h-8 w-8 p-0 rounded-full hover:bg-purple-500/20 text-zinc-500 hover:text-purple-500 transition-colors"
+                                   title="Marcar como Completado"
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     handleCompleteSlot(slot.id);
+                                   }}
+                                 >
+                                   <CheckCircle2 className="w-4 h-4" />
+                                 </Button>
+                               )}
+                               <Button 
+                                 size="sm" 
                                 variant="ghost" 
                                 className="h-8 w-8 p-0 rounded-full hover:bg-red-500/20 text-zinc-500 hover:text-red-500 transition-colors"
                                 onClick={(e) => {
