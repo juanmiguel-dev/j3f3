@@ -53,9 +53,7 @@ export default function BookingConfirmationPage({ params }) {
   }
 
   const date = new Date(slot.start_time);
-  const mpLink = slot.duration_hours === 3 
-    ? process.env.NEXT_PUBLIC_MERCADO_PAGO_LINK_3HS 
-    : process.env.NEXT_PUBLIC_MERCADO_PAGO_LINK_6HS;
+  const mpLink = process.env.NEXT_PUBLIC_MERCADO_PAGO_LINK;
 
   return (
     <div className="min-h-screen pt-32 pb-12 px-4 sm:px-6 lg:px-8 bg-zinc-950 flex flex-col items-center">
