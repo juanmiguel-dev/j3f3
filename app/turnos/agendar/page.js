@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { getAvailableSlots } from '@/app/actions/booking';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
+import { SimpleCalendar as Calendar } from '@/components/ui/simple-calendar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   CalendarClock, 
@@ -109,18 +109,13 @@ export default function AgendarPage() {
                 
                 <div className="w-full">
                   <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    locale={es}
-                    className="p-0"
-                    modifiers={{
-                      hasSlots: (date) => hasAvailableSlots(date),
-                    }}
-                    modifiersClassNames={{
-                      hasSlots: "font-bold text-emerald-400 relative after:content-[''] after:absolute after:top-1 after:right-1 after:w-1.5 after:h-1.5 after:bg-emerald-500 after:rounded-full"
-                    }}
-                  />
+            selected={date}
+            onSelect={setDate}
+            className="p-0"
+            modifiers={{
+              hasSlots: (date) => hasAvailableSlots(date),
+            }}
+          />
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-zinc-900">
