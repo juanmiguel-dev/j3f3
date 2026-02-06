@@ -29,15 +29,15 @@ function Calendar({
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
-        table: "w-full border-collapse space-y-1 table-fixed",
-        head_row: "",
+        table: "w-full border-collapse space-y-1",
+        head_row: "grid grid-cols-7 w-full mb-2",
         head_cell:
-          "text-zinc-400 rounded-md font-normal text-[0.8rem]",
-        row: "",
-        cell: "h-10 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-zinc-800/50 [&:has([aria-selected])]:bg-zinc-800 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+          "text-zinc-400 rounded-md font-normal text-[0.8rem] flex items-center justify-center",
+        row: "grid grid-cols-7 w-full mt-2 gap-1",
+        cell: "h-10 w-full text-center text-sm p-0 relative focus-within:relative focus-within:z-20 flex items-center justify-center",
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-10 w-full p-0 font-normal aria-selected:opacity-100 text-white hover:bg-zinc-700 hover:text-white mx-auto"
+          "h-10 w-full p-0 font-normal aria-selected:opacity-100 text-white hover:bg-zinc-700 hover:text-white rounded-md"
         ),
         day_range_end: "day-range-end",
         day_selected:
