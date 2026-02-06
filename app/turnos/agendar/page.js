@@ -80,17 +80,17 @@ export default function AgendarPage() {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start max-w-5xl mx-auto">
           {/* Calendar Section */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-7"
+            className="w-full flex justify-center lg:justify-end"
           >
-            <div className="sticky top-32 group">
+            <div className="sticky top-32 group w-full max-w-[400px]">
               <div className="absolute -inset-1 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-3xl blur opacity-70 group-hover:opacity-100 transition duration-1000"></div>
-              <div className="relative bg-zinc-950 border border-zinc-800/50 rounded-2xl p-6 md:p-8 shadow-2xl">
+              <div className="relative bg-zinc-950 border border-zinc-800/50 rounded-2xl p-6 shadow-2xl">
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-xl font-bold text-white flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center border border-zinc-800">
@@ -98,54 +98,27 @@ export default function AgendarPage() {
                     </div>
                     Calendario
                   </h2>
-                  <div className="flex items-center gap-2 text-xs font-medium text-zinc-500 bg-zinc-900/50 px-3 py-1.5 rounded-full border border-zinc-800">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Turnos disponibles
-                  </div>
                 </div>
                 
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  locale={es}
-                  className="w-full p-0"
-                  classNames={{
-                    months: "flex flex-col space-y-4 w-full",
-                    month: "space-y-6 w-full",
-                    caption: "flex justify-center pt-2 relative items-center mb-6",
-                    caption_label: "text-lg font-black text-white capitalize tracking-wide",
-                    nav: "space-x-1 flex items-center absolute right-0",
-                    nav_button: "h-8 w-8 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white transition-all",
-                    nav_button_previous: "absolute left-0",
-                    nav_button_next: "absolute right-0",
-                    table: "w-full border-collapse table-fixed",
-                    head_row: "table-row",
-                    head_cell: "text-zinc-500 font-bold text-xs uppercase tracking-widest h-10 table-cell align-middle text-center",
-                    row: "table-row",
-                    cell: "h-14 table-cell align-middle text-center p-0 relative focus-within:relative focus-within:z-20",
-                    day: cn(
-                      "group relative h-10 w-10 mx-auto p-0 font-medium text-zinc-400 rounded-full transition-all hover:bg-zinc-800 hover:text-white flex items-center justify-center",
-                      "data-[selected]:bg-white data-[selected]:text-black data-[selected]:font-bold data-[selected]:shadow-md data-[selected]:shadow-white/10",
-                      "data-[today]:text-white data-[today]:font-bold data-[today]:after:absolute data-[today]:after:bottom-1 data-[today]:after:left-1/2 data-[today]:after:-translate-x-1/2 data-[today]:after:w-1 data-[today]:after:h-1 data-[today]:after:bg-white data-[today]:after:rounded-full"
-                    ),
-                    day_selected: "bg-white text-black hover:bg-white hover:text-black focus:bg-white focus:text-black",
-                    day_today: "bg-transparent",
-                    day_outside: "text-zinc-800 opacity-50",
-                    day_disabled: "text-zinc-800 opacity-50",
-                    day_hidden: "invisible",
-                  }}
-                  modifiers={{
-                    hasSlots: (date) => hasAvailableSlots(date),
-                  }}
-                  modifiersClassNames={{
-                    hasSlots: "text-white font-bold after:content-[''] after:absolute after:top-1.5 after:right-1.5 after:w-1.5 after:h-1.5 after:bg-emerald-500 after:rounded-full after:shadow-[0_0_8px_rgba(16,185,129,0.5)]"
-                  }}
-                />
+                <div className="flex justify-center">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    locale={es}
+                    className="p-0"
+                    modifiers={{
+                      hasSlots: (date) => hasAvailableSlots(date),
+                    }}
+                    modifiersClassNames={{
+                      hasSlots: "font-bold text-emerald-400 relative after:content-[''] after:absolute after:top-1 after:right-1 after:w-1.5 after:h-1.5 after:bg-emerald-500 after:rounded-full"
+                    }}
+                  />
+                </div>
 
                 <div className="mt-8 pt-6 border-t border-zinc-900">
                   <p className="text-center text-xs text-zinc-500 font-medium">
-                    Los horarios están mostrados en tu zona horaria local.
+                    Horarios en tu zona local
                   </p>
                 </div>
               </div>
@@ -153,7 +126,7 @@ export default function AgendarPage() {
           </motion.div>
 
           {/* Slots Section */}
-          <div className="lg:col-span-5">
+          <div className="w-full">
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -186,7 +159,7 @@ export default function AgendarPage() {
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2">Sin disponibilidad</h3>
                     <p className="text-zinc-500 max-w-sm mx-auto">
-                      No hay turnos programados para esta fecha. Busca los días marcados con un <span className="text-emerald-500 font-bold">punto verde</span>.
+                      No hay turnos para esta fecha.
                     </p>
                   </div>
                 </motion.div>
@@ -198,51 +171,31 @@ export default function AgendarPage() {
                         key={slot.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
                         transition={{ delay: index * 0.1 }}
-                        className="group relative bg-zinc-950 border border-zinc-800 hover:border-zinc-600 rounded-2xl p-6 transition-all hover:shadow-2xl hover:scale-[1.01] overflow-hidden"
+                        className="group relative bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-zinc-600 transition-all duration-300"
                       >
-                        <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                           <ArrowRight className="w-24 h-24 -mr-8 -mt-8 text-white rotate-45" />
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 relative z-10">
-                          <div className="flex items-start gap-5">
-                            <div className="bg-zinc-900 rounded-2xl p-4 flex flex-col items-center justify-center min-w-[100px] border border-zinc-800 group-hover:border-zinc-700 transition-colors">
-                              <span className="text-3xl font-black text-white tracking-tighter">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                          <div>
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="text-2xl font-bold text-white font-mono">
                                 {format(new Date(slot.start_time), 'HH:mm')}
                               </span>
-                              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-1">
-                                Hora
+                              <span className="text-zinc-500 font-medium">
+                                - {format(new Date(slot.end_time), 'HH:mm')}
                               </span>
                             </div>
-                            
-                            <div>
-                              <div className="flex items-center gap-3 mb-2">
-                                <h3 className="text-xl font-bold text-white">
-                                  Sesión {slot.duration_hours === 3 ? 'Media' : 'Completa'}
-                                </h3>
-                                <span className="bg-emerald-500/10 text-emerald-500 text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-widest flex items-center gap-1 border border-emerald-500/20">
-                                  {slot.duration_hours} Horas
-                                </span>
-                              </div>
-                              
-                              <div className="flex items-center gap-4 text-sm font-medium text-zinc-400">
-                                <span className="flex items-center gap-1.5">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-600"></span>
-                                  Total: <span className="text-white">${slot.price_ars.toLocaleString('es-AR')}</span>
-                                </span>
-                                <span className="flex items-center gap-1.5">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-600"></span>
-                                  Seña: <span className="text-white">${(slot.price_ars * 0.5).toLocaleString('es-AR')}</span>
-                                </span>
-                              </div>
+                            <div className="flex items-center gap-2 text-sm text-zinc-400">
+                              <Info className="w-4 h-4" />
+                              <span>Disponible para reservar</span>
                             </div>
                           </div>
-
+                          
                           <Link href={`/reserva/${slot.id}`} className="w-full sm:w-auto">
-                            <Button className="w-full sm:w-auto bg-white text-black hover:bg-zinc-200 font-bold py-6 px-8 rounded-xl text-base shadow-lg shadow-white/5 transition-transform active:scale-95">
-                              Reservar <ChevronRight className="w-4 h-4 ml-1" />
+                            <Button 
+                              className="w-full sm:w-auto bg-white text-black hover:bg-zinc-200 font-bold rounded-xl h-12 px-8 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all duration-300"
+                            >
+                              Reservar
+                              <ArrowRight className="w-4 h-4 ml-2" />
                             </Button>
                           </Link>
                         </div>
