@@ -435,12 +435,30 @@ function AgendaContent() {
               }`}
             >
               <List className="w-4 h-4" />
-              Lista de Turnos (v2)
+              Todos los Turnos
               {slots.length > 0 && (
                 <span className={`ml-1 text-xs px-2 py-0.5 rounded-full ${
                   activeTab === 'list' ? 'bg-zinc-700 text-white' : 'bg-zinc-800 text-zinc-400'
                 }`}>
                   {slots.length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('confirmed')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                activeTab === 'confirmed' 
+                  ? 'bg-blue-900/30 text-blue-100 shadow-lg border border-blue-500/30' 
+                  : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+              }`}
+            >
+              <CheckCircle2 className="w-4 h-4 text-blue-400" />
+              Confirmados
+              {slots.filter(s => s.status === 'confirmed').length > 0 && (
+                <span className={`ml-1 text-xs px-2 py-0.5 rounded-full ${
+                  activeTab === 'confirmed' ? 'bg-blue-500/20 text-blue-200' : 'bg-zinc-800 text-zinc-400'
+                }`}>
+                  {slots.filter(s => s.status === 'confirmed').length}
                 </span>
               )}
             </button>
@@ -724,41 +742,67 @@ function AgendaContent() {
             </div>
           </div>
         ) : (
-          /* List View */
+          /* List View (Todos or Confirmados) */
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-zinc-900/50 border border-zinc-800 rounded-3xl overflow-hidden backdrop-blur-sm"
+            className="space-y-6"
           >
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-zinc-900/80 border-b border-zinc-800 text-zinc-400 uppercase tracking-wider text-xs font-semibold">
-                  <tr>
-                    <th className="px-6 py-4">Fecha y Hora</th>
-                    <th className="px-6 py-4">Cliente</th>
-                    <th className="px-6 py-4">Contacto</th>
-                    <th className="px-6 py-4">Servicio</th>
-                    <th className="px-6 py-4">Estado</th>
-                    <th className="px-6 py-4 text-right">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800/50">
-                  {slots
-                    //.filter(s => s.status !== 'available') // Show all slots including available
-                    .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime()) // Ascending order (oldest first)
-                    .map((slot) => (
-                    <tr key={slot.id} className="hover:bg-zinc-800/30 transition-colors group">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex flex-col">
-                          <span className="font-bold text-white text-base">
-                            {format(new Date(slot.start_time), "d 'de' MMMM", { locale: es })}
-                          </span>
-                          <span className="text-zinc-500 flex items-center gap-1.5">
-                            <Clock className="w-3 h-3" />
-                            {format(new Date(slot.start_time), 'HH:mm')} - {format(new Date(new Date(slot.start_time).getTime() + slot.duration_hours * 60 * 60 * 1000), 'HH:mm')}
-                          </span>
-                        </div>
-                      </td>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                {activeTab === 'confirmed' ? (
+                  <>
+                    <CheckCircle2 className="w-5 h-5 text-blue-500" />
+                    Turnos Confirmados
+                  </>
+                ) : (
+                  <>
+                    <List className="w-5 h-5 text-zinc-500" />
+                    Todos los Turnos
+                  </>
+                )}
+              </h2>
+              <div className="text-sm text-zinc-400">
+                Total: <span className="text-white font-mono font-bold">
+                  {activeTab === 'confirmed' 
+                    ? slots.filter(s => s.status === 'confirmed').length 
+                    : slots.length}
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl overflow-hidden backdrop-blur-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-zinc-900/80 border-b border-zinc-800 text-zinc-400 uppercase tracking-wider text-xs font-semibold">
+                    <tr>
+                      <th className="px-6 py-4">Fecha y Hora</th>
+                      <th className="px-6 py-4">Cliente</th>
+                      <th className="px-6 py-4">Contacto</th>
+                      <th className="px-6 py-4">Servicio</th>
+                      <th className="px-6 py-4">Estado</th>
+                      <th className="px-6 py-4 text-right">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800/50">
+                    {(activeTab === 'confirmed' 
+                        ? slots.filter(s => s.status === 'confirmed') 
+                        : slots
+                      )
+                      .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime()) // Ascending order
+                      .map((slot) => (
+                      <tr key={slot.id} className="hover:bg-zinc-800/30 transition-colors group">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex flex-col">
+                            <span className="font-bold text-white text-base">
+                              {format(new Date(slot.start_time), "d 'de' MMMM", { locale: es })}
+                            </span>
+                            <span className="text-zinc-500 flex items-center gap-1.5">
+                              <Clock className="w-3 h-3" />
+                              {format(new Date(slot.start_time), 'HH:mm')} - {format(new Date(new Date(slot.start_time).getTime() + slot.duration_hours * 60 * 60 * 1000), 'HH:mm')}
+                            </span>
+                          </div>
+                        </td>
                       <td className="px-6 py-4">
                         {slot.client_name ? (
                           <div className="flex flex-col">

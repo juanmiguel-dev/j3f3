@@ -54,11 +54,20 @@ export default function AgendarPage() {
     loadSlots();
   }, []);
 
-  // Filter slots for the selected date
-  const selectedDateSlots = slots.filter(slot => {
-    const slotDate = new Date(slot.start_time);
-    return date && slotDate.toDateString() === date.toDateString();
-  });
+  // Filter slots for the selected date and sort for layout (3h first, then 6h)
+  const selectedDateSlots = slots
+    .filter(slot => {
+      const slotDate = new Date(slot.start_time);
+      return date && slotDate.toDateString() === date.toDateString();
+    })
+    .sort((a, b) => {
+      // Sort by duration ascending (smaller slots first to fit in grid)
+      const durA = a.duration_hours || 0;
+      const durB = b.duration_hours || 0;
+      if (durA !== durB) return durA - durB;
+      // Then by start time
+      return new Date(a.start_time) - new Date(b.start_time);
+    });
 
   // Check if a day has available slots
   const hasAvailableSlots = (day) => {
@@ -69,10 +78,10 @@ export default function AgendarPage() {
   };
 
   return (
-    <div className="min-h-screen pt-32 pb-12 px-4 sm:px-6 lg:px-8 bg-zinc-950 selection:bg-white/20">
+    <div className="min-h-screen pt-32 pb-12 px-4 sm:px-6 lg:px-8 bg-zinc-950 selection:bg-white/20 overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16 relative">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-white/5 blur-[100px] rounded-full pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[500px] h-[300px] bg-white/5 blur-[100px] rounded-full pointer-events-none" />
           
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -181,7 +190,7 @@ export default function AgendarPage() {
                   </div>
                 </motion.div>
               ) : (
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <AnimatePresence mode="popLayout">
                     {selectedDateSlots.map((slot, index) => {
                       const startTime = new Date(slot.start_time);
@@ -198,7 +207,9 @@ export default function AgendarPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className="group relative overflow-hidden bg-zinc-900/80 border border-zinc-800 rounded-2xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.01] hover:border-green-500/30"
+                        className={`group relative overflow-hidden bg-zinc-900/80 border border-zinc-800 rounded-2xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.01] hover:border-green-500/30 ${
+                          (slot.duration_hours || 0) >= 6 ? 'md:col-span-2' : ''
+                        }`}
                       >
                         {/* Status Stripe */}
                         <div className="absolute top-0 left-0 w-1.5 h-full bg-green-500" />
