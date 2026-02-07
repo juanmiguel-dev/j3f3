@@ -145,7 +145,7 @@ export async function updateTimeSlot(slotId, formData) {
   };
 
   // Only update status if provided and valid
-  const validStatuses = ['available', 'pending', 'confirmed', 'completed', 'pending_payment'];
+  const validStatuses = ['available', 'pending', 'confirmed', 'completed', 'pending_payment', 'blocked'];
   if (status && validStatuses.includes(status)) {
     updateData.status = status;
   }
@@ -205,7 +205,7 @@ export async function updateSlotStatus(slotId, newStatus) {
   }
 
   // Validar status permitido
-  const validStatuses = ['available', 'pending', 'confirmed', 'completed', 'pending_payment'];
+  const validStatuses = ['available', 'pending', 'confirmed', 'completed', 'pending_payment', 'blocked'];
   if (!validStatuses.includes(newStatus)) {
     return { error: 'Estado no válido' };
   }
@@ -297,6 +297,44 @@ export async function initiateBooking(slotId) {
   // o alguien que llegó justo antes. En un sistema real usaríamos sesiones.
   // Por ahora, si es 'available' lo pasamos a 'pending_payment'.
   if (slot.status === 'available') {
+      // START: Overlap Logic
+      // Check for overlapping slots on the same day and block them
+      const slotStart = new Date(slot.start_time);
+      const slotEnd = new Date(slotStart.getTime() + slot.duration_hours * 60 * 60 * 1000);
+
+      const startOfDay = new Date(slotStart);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(slotStart);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      // Fetch other available slots for the same day
+      const { data: daySlots, error: daySlotsError } = await supabase
+        .from('time_slots')
+        .select('*')
+        .gte('start_time', startOfDay.toISOString())
+        .lte('start_time', endOfDay.toISOString())
+        .eq('status', 'available')
+        .neq('id', slotId);
+      
+      if (!daySlotsError && daySlots && daySlots.length > 0) {
+        const slotsToBlock = daySlots.filter(other => {
+          const otherStart = new Date(other.start_time);
+          const otherEnd = new Date(otherStart.getTime() + other.duration_hours * 60 * 60 * 1000);
+          
+          // Overlap: StartA < EndB && StartB < EndA
+          return slotStart < otherEnd && otherStart < slotEnd;
+        });
+
+        if (slotsToBlock.length > 0) {
+          console.log(`Blocking ${slotsToBlock.length} overlapping slots due to selection of ${slotId}`);
+          await supabase
+            .from('time_slots')
+            .update({ status: 'blocked' })
+            .in('id', slotsToBlock.map(s => s.id));
+        }
+      }
+      // END: Overlap Logic
+
       const { error: updateError } = await supabase
         .from('time_slots')
         .update({ status: 'pending_payment' })

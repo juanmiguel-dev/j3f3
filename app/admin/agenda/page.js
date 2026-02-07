@@ -93,6 +93,91 @@ function AgendaContent() {
     loadData();
   }, []);
 
+  async function handleBulkGenerate() {
+    if (!confirm('¿Generar turnos automáticos para Febrero 2026?\n\nLunes y Miércoles:\n- 15:00 a 18:00 (3h)\n- 18:00 a 21:00 (3h)\n- 15:00 a 21:00 (6h - Completa)\n\nMartes y Jueves:\n- 08:30 a 11:30 (3h)\n- 11:30 a 14:30 (3h)\n- 08:30 a 14:30 (6h - Completa)')) return;
+    
+    setIsSubmitting(true);
+    try {
+      const year = 2026;
+      const month = 1; // February (0-indexed)
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      
+      let count = 0;
+      
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateObj = new Date(year, month, day);
+        const dayOfWeek = dateObj.getDay(); // 0=Sun, 1=Mon, 2=Tue, 3=Wed...
+        const dateStr = format(dateObj, 'yyyy-MM-dd');
+
+        // Monday (1) or Wednesday (3)
+        if (dayOfWeek === 1 || dayOfWeek === 3) {
+          // Slot 1: 15:00 (3h)
+          const fd1 = new FormData();
+          fd1.append('date', dateStr);
+          fd1.append('time', '15:00');
+          fd1.append('duration', '3');
+          fd1.append('price', '60000');
+          await createTimeSlot(fd1);
+
+          // Slot 2: 18:00 (3h)
+          const fd2 = new FormData();
+          fd2.append('date', dateStr);
+          fd2.append('time', '18:00');
+          fd2.append('duration', '3');
+          fd2.append('price', '60000');
+          await createTimeSlot(fd2);
+          
+          // Slot 3: 15:00 (6h) - Sesión Completa
+          const fd3 = new FormData();
+          fd3.append('date', dateStr);
+          fd3.append('time', '15:00');
+          fd3.append('duration', '6');
+          fd3.append('price', '120000');
+          await createTimeSlot(fd3);
+          
+          count += 3;
+        }
+
+        // Tuesday (2) or Thursday (4)
+        else if (dayOfWeek === 2 || dayOfWeek === 4) {
+          // Slot 1: 08:30 (3h)
+          const fd1 = new FormData();
+          fd1.append('date', dateStr);
+          fd1.append('time', '08:30');
+          fd1.append('duration', '3');
+          fd1.append('price', '60000');
+          await createTimeSlot(fd1);
+
+          // Slot 2: 11:30 (3h)
+          const fd2 = new FormData();
+          fd2.append('date', dateStr);
+          fd2.append('time', '11:30');
+          fd2.append('duration', '3');
+          fd2.append('price', '60000');
+          await createTimeSlot(fd2);
+          
+          // Slot 3: 08:30 (6h) - Sesión Completa
+          const fd3 = new FormData();
+          fd3.append('date', dateStr);
+          fd3.append('time', '08:30');
+          fd3.append('duration', '6');
+          fd3.append('price', '120000');
+          await createTimeSlot(fd3);
+          
+          count += 3;
+        }
+      }
+      
+      alert(`Se han generado ${count} turnos exitosamente.`);
+      await fetchSlots();
+    } catch (error) {
+      console.error(error);
+      alert('Error generando turnos: ' + error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   async function handleCreateSlot(e) {
     e.preventDefault();
     setIsSubmitting(true);
@@ -103,7 +188,10 @@ function AgendaContent() {
     formData.append('duration', selectedType);
     
     // Set price based on type
-    const price = selectedType === '3' ? '60000' : '120000';
+    let price = '60000';
+    if (selectedType === '6') price = '120000';
+    if (selectedType === '1') price = '20000';
+    
     formData.append('price', price);
 
     const result = await createTimeSlot(formData);
@@ -210,6 +298,7 @@ function AgendaContent() {
       case 'completed': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
       case 'pending': return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
       case 'pending_payment': return 'bg-orange-500/10 text-orange-400 border-orange-500/20';
+      case 'blocked': return 'bg-red-500/10 text-red-400 border-red-500/20';
       default: return 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20';
     }
   };
@@ -221,6 +310,7 @@ function AgendaContent() {
       case 'completed': return 'Completado';
       case 'pending': return 'Pendiente';
       case 'pending_payment': return 'Pago Pendiente';
+      case 'blocked': return 'Bloqueado';
       default: return status;
     }
   };
@@ -252,6 +342,14 @@ function AgendaContent() {
             </div>
             
             <div className="flex gap-4 items-center">
+              <Button 
+                onClick={handleBulkGenerate}
+                disabled={isSubmitting}
+                variant="outline"
+                className="hidden md:flex border-zinc-800 hover:bg-zinc-800 text-zinc-400 hover:text-white cursor-pointer"
+              >
+                ⚡ Generar Febrero
+              </Button>
               {activeTab === 'calendar' && (
                 <div className="bg-zinc-900/50 border border-zinc-800 px-4 py-2 rounded-lg backdrop-blur-sm">
                   <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold block">Total del Día</span>
@@ -380,6 +478,12 @@ function AgendaContent() {
                               <div className="flex flex-col text-left">
                                 <span className="font-bold">Sesión Larga (6 Horas)</span>
                                 <span className="text-xs text-zinc-400">$120.000 ARS</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="1" className="focus:bg-zinc-800 focus:text-white cursor-pointer py-3">
+                              <div className="flex flex-col text-left">
+                                <span className="font-bold">Sesión Express (1 Hora)</span>
+                                <span className="text-xs text-zinc-400">$20.000 ARS</span>
                               </div>
                             </SelectItem>
                           </SelectContent>
