@@ -237,7 +237,6 @@ export default function BookingConfirmationPage({ params }) {
                 </div>
                 <div className="space-y-2 text-sm text-zinc-300 font-mono bg-zinc-900 p-4 rounded border border-zinc-800">
                   <p>Alias: <span className="text-white select-all">{process.env.NEXT_PUBLIC_CBU_ALIAS || 'ALIAS.CBU.J3R3F3'}</span></p>
-                  <p>CBU: <span className="text-white select-all">0000003100000000000000</span></p>
                   <p>Titular: <span className="text-white">Jeremías Feldman</span></p>
                 </div>
                 <p className="text-zinc-500 text-xs mt-4">
