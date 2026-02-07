@@ -141,12 +141,6 @@ export default function AgendarPage() {
             }}
           />
                 </div>
-
-                <div className="mt-8 pt-6 border-t border-zinc-900">
-                  <p className="text-center text-xs text-zinc-500 font-medium">
-                    Horarios en tu zona local
-                  </p>
-                </div>
               </div>
             </div>
           </motion.div>
