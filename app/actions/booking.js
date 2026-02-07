@@ -45,6 +45,33 @@ export async function createTimeSlot(formData) {
 }
 
 /**
+ * Elimina un turno (Admin)
+ */
+export async function deleteTimeSlot(slotId) {
+  const supabase = await createClient();
+
+  // Validar sesión
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    return { error: 'No autorizado' };
+  }
+
+  const { error } = await supabase
+    .from('time_slots')
+    .delete()
+    .eq('id', slotId);
+
+  if (error) {
+    console.error('Error deleting slot:', error);
+    return { error: error.message };
+  }
+
+  revalidatePath('/admin/agenda');
+  revalidatePath('/turnos/agendar');
+  return { success: true };
+}
+
+/**
  * Aprueba un turno pendiente (Admin)
  */
 export async function approveBooking(slotId) {
