@@ -118,21 +118,30 @@ export async function updateTimeSlot(slotId, formData) {
   const clientEmail = formData.get('client_email');
   const clientPhone = formData.get('client_phone');
   const clientInstagram = formData.get('client_instagram');
+  const status = formData.get('status');
 
   // Combinar fecha y hora para el timestamp
   const startTime = new Date(`${date}T${time}:00`);
 
+  const updateData = {
+    start_time: startTime.toISOString(),
+    duration_hours: duration,
+    price_ars: price,
+    client_name: clientName,
+    client_email: clientEmail,
+    client_phone: clientPhone,
+    client_instagram: clientInstagram
+  };
+
+  // Only update status if provided and valid
+  const validStatuses = ['available', 'pending', 'confirmed', 'completed', 'pending_payment'];
+  if (status && validStatuses.includes(status)) {
+    updateData.status = status;
+  }
+
   const { error } = await supabase
     .from('time_slots')
-    .update({
-      start_time: startTime.toISOString(),
-      duration_hours: duration,
-      price_ars: price,
-      client_name: clientName,
-      client_email: clientEmail,
-      client_phone: clientPhone,
-      client_instagram: clientInstagram
-    })
+    .update(updateData)
     .eq('id', slotId);
 
   if (error) {

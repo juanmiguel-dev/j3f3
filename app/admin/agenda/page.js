@@ -830,6 +830,42 @@ function AgendaContent() {
                 </div>
               </div>
 
+              <div className="space-y-2 pt-2 border-t border-zinc-800">
+                <label className="text-sm font-medium text-zinc-400">Estado del Turno</label>
+                <Select name="status" defaultValue={slotToEdit.status}>
+                  <SelectTrigger className="w-full bg-zinc-900 border-zinc-800 text-white">
+                    <SelectValue placeholder="Seleccionar estado" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
+                    <SelectItem value="available" className="focus:bg-zinc-800 focus:text-white cursor-pointer py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500" /> Disponible
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="pending" className="focus:bg-zinc-800 focus:text-white cursor-pointer py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-yellow-500" /> Pendiente
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="pending_payment" className="focus:bg-zinc-800 focus:text-white cursor-pointer py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-orange-500" /> Pago Pendiente
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="confirmed" className="focus:bg-zinc-800 focus:text-white cursor-pointer py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-blue-500" /> Confirmado (Pago OK)
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="completed" className="focus:bg-zinc-800 focus:text-white cursor-pointer py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-purple-500" /> Completado
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="pt-4 flex gap-3">
                 <Button 
                   type="button" 
