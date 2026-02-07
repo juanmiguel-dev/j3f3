@@ -7,41 +7,52 @@ import { revalidatePath } from 'next/cache';
  * Crea un nuevo turno en la base de datos
  */
 export async function createTimeSlot(formData) {
-  const supabase = await createClient();
-  
-  const date = formData.get('date'); // YYYY-MM-DD
-  const time = formData.get('time'); // HH:mm
-  const duration = parseInt(formData.get('duration'));
-  const price = parseInt(formData.get('price'));
-  
-  // Combinar fecha y hora para el timestamp
-  const startTime = new Date(`${date}T${time}:00`);
-  
-  // Validar sesión (solo admin puede crear)
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    return { error: 'No autorizado' };
+  try {
+    console.log('createTimeSlot started');
+    const supabase = await createClient();
+    
+    const date = formData.get('date'); // YYYY-MM-DD
+    const time = formData.get('time'); // HH:mm
+    const duration = parseInt(formData.get('duration'));
+    const price = parseInt(formData.get('price'));
+    
+    console.log('Data:', { date, time, duration, price });
+
+    // Combinar fecha y hora para el timestamp
+    const startTime = new Date(`${date}T${time}:00`);
+    
+    // Validar sesión (solo admin puede crear)
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      console.error('Auth error:', userError);
+      return { error: 'No autorizado' };
+    }
+
+    console.log('User authenticated:', user.id);
+
+    const { error } = await supabase
+      .from('time_slots')
+      .insert([
+        {
+          start_time: startTime.toISOString(),
+          duration_hours: duration,
+          price_ars: price,
+          status: 'available'
+        }
+      ]);
+
+    if (error) {
+      console.error('Error creating slot:', error);
+      return { error: error.message };
+    }
+
+    revalidatePath('/admin/agenda');
+    revalidatePath('/turnos/agendar');
+    return { success: true };
+  } catch (err) {
+    console.error('CRITICAL ERROR in createTimeSlot:', err);
+    return { error: 'Server error: ' + err.message };
   }
-
-  const { error } = await supabase
-    .from('time_slots')
-    .insert([
-      {
-        start_time: startTime.toISOString(),
-        duration_hours: duration,
-        price_ars: price,
-        status: 'available'
-      }
-    ]);
-
-  if (error) {
-    console.error('Error creating slot:', error);
-    return { error: error.message };
-  }
-
-  revalidatePath('/admin/agenda');
-  revalidatePath('/turnos/agendar');
-  return { success: true };
 }
 
 /**
