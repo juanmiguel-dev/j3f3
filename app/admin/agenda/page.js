@@ -382,11 +382,11 @@ function AgendaContent() {
             >
               <List className="w-4 h-4" />
               Lista de Turnos (v2)
-              {slots.filter(s => s.status !== 'available').length > 0 && (
+              {slots.length > 0 && (
                 <span className={`ml-1 text-xs px-2 py-0.5 rounded-full ${
                   activeTab === 'list' ? 'bg-zinc-700 text-white' : 'bg-zinc-800 text-zinc-400'
                 }`}>
-                  {slots.filter(s => s.status !== 'available').length}
+                  {slots.length}
                 </span>
               )}
             </button>
@@ -690,8 +690,8 @@ function AgendaContent() {
                 </thead>
                 <tbody className="divide-y divide-zinc-800/50">
                   {slots
-                    .filter(s => s.status !== 'available') // Only show actual bookings in list? or all? Let's show all but maybe distinguish available
-                    .sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime()) // Newest first
+                    //.filter(s => s.status !== 'available') // Show all slots including available
+                    .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime()) // Ascending order (oldest first)
                     .map((slot) => (
                     <tr key={slot.id} className="hover:bg-zinc-800/30 transition-colors group">
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -814,7 +814,7 @@ function AgendaContent() {
                   ))}
                 </tbody>
               </table>
-              {slots.filter(s => s.status !== 'available').length === 0 && (
+              {slots.length === 0 && (
                 <div className="p-12 text-center text-zinc-500">
                   No hay turnos registrados en la lista.
                 </div>

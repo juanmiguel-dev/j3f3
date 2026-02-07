@@ -24,16 +24,29 @@ export default function AgendarPage() {
   const [slots, setSlots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState(undefined);
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
 
   useEffect(() => {
-    setDate(new Date());
     async function loadSlots() {
       try {
         const data = await getAvailableSlots();
         setSlots(data || []);
+        
+        // Auto-select first available date if exists
+        if (data && data.length > 0) {
+          const sortedSlots = [...data].sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+          const firstSlot = sortedSlots[0];
+          const firstDate = new Date(firstSlot.start_time);
+          
+          setDate(firstDate);
+          setCalendarMonth(firstDate);
+        } else {
+          setDate(new Date());
+        }
       } catch (error) {
         console.error("Error loading slots:", error);
         setSlots([]);
+        setDate(new Date());
       } finally {
         setLoading(false);
       }
@@ -111,6 +124,8 @@ export default function AgendarPage() {
                   <Calendar
             selected={date}
             onSelect={setDate}
+            month={calendarMonth}
+            onMonthChange={setCalendarMonth}
             className="p-0"
             modifiers={{
               hasSlots: (date) => hasAvailableSlots(date),

@@ -27,9 +27,19 @@ export function SimpleCalendar({
   onSelect,
   modifiers = {},
   modifiersClassNames = {},
+  month,
+  onMonthChange,
   ...props
 }) {
-  const [currentMonth, setCurrentMonth] = React.useState(new Date());
+  const [internalMonth, setInternalMonth] = React.useState(new Date());
+  
+  const currentMonth = month || internalMonth;
+  const setCurrentMonth = (newMonth) => {
+    if (onMonthChange) {
+      onMonthChange(newMonth);
+    }
+    setInternalMonth(newMonth);
+  };
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
