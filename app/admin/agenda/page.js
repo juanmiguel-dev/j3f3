@@ -414,7 +414,7 @@ function AgendaContent() {
               <div className="mb-6 flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   <List className="w-5 h-5 text-zinc-500" />
-                  Turnos del Día
+                  Turnos del Día (Admin)
                 </h2>
                 {/* Optional: Filter/Sort controls could go here */}
               </div>
