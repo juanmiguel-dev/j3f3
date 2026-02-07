@@ -109,7 +109,7 @@ export default function AgendarPage() {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-12 items-start max-w-7xl mx-auto">
           {/* Calendar Section */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }}

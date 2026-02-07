@@ -249,7 +249,7 @@ export default function BookingConfirmationPage({ params }) {
                     rel="noopener noreferrer"
                   >
                     <Button variant="outline" className="w-full mt-4 border-green-900 text-green-400 hover:bg-green-900/20 hover:text-green-300">
-                      Enviar Comprobante por WhatsApp
+                      Enviar comprobante por WA
                     </Button>
                   </a>
                 )}
