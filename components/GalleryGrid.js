@@ -34,27 +34,35 @@ export default function GalleryGrid() {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {tattoos.map((tattoo) => (
-          <motion.div 
-            key={tattoo.id}
-            layoutId={`card-${tattoo.id}`}
-            onClick={() => setSelectedId(tattoo.id)}
-            className="group relative aspect-square overflow-hidden rounded-xl bg-zinc-800 cursor-pointer border-2 border-[#222] hover:border-white/80 hover:shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-300"
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Image
-              src={tattoo.src}
-              alt={tattoo.alt}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
-            />
-            {/* Overlay sutil solo para indicar interactividad, sin texto */}
-            <div className="absolute inset-0 bg-transparent transition-colors duration-300" />
-          </motion.div>
-        ))}
+      <div className="columns-1 sm:columns-2 md:columns-3 gap-4 px-2">
+        {tattoos.map((tattoo, index) => {
+          // Deterministic random aspect ratio for masonry feel
+          // Cycles through: 3/4 (portrait), 1/1 (square), 4/3 (landscape), 9/16 (tall)
+          const aspectRatios = ['aspect-[3/4]', 'aspect-square', 'aspect-[4/5]', 'aspect-[2/3]'];
+          const aspectClass = aspectRatios[index % aspectRatios.length];
+          
+          return (
+            <motion.div 
+              key={tattoo.id}
+              layoutId={`card-${tattoo.id}`}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: index * 0.05 }}
+              onClick={() => setSelectedId(tattoo.id)}
+              className={`group relative break-inside-avoid mb-4 overflow-hidden rounded-xl bg-zinc-900 cursor-pointer border border-zinc-800 hover:border-white/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] ${aspectClass}`}
+            >
+              <Image
+                src={tattoo.src}
+                alt={tattoo.alt}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </motion.div>
+          );
+        })}
       </div>
 
       <AnimatePresence>

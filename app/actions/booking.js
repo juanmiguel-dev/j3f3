@@ -210,6 +210,39 @@ export async function approveBooking(slotId) {
 }
 
 /**
+ * Libera un turno, dejándolo disponible y limpiando datos del cliente (Admin)
+ */
+export async function liberateTimeSlot(slotId) {
+  const supabase = await createClient();
+
+  // Validar sesión
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    return { error: 'No autorizado' };
+  }
+
+  const { error } = await supabase
+    .from('time_slots')
+    .update({ 
+      status: 'available',
+      client_name: null,
+      client_email: null,
+      client_phone: null,
+      client_instagram: null
+    })
+    .eq('id', slotId);
+
+  if (error) {
+    console.error('Error liberating slot:', error);
+    return { error: error.message };
+  }
+
+  revalidatePath('/admin/agenda');
+  revalidatePath('/turnos/agendar');
+  return { success: true };
+}
+
+/**
  * Actualiza los detalles de un turno (Admin)
  */
 export async function updateTimeSlot(slotId, formData) {
@@ -310,9 +343,26 @@ export async function updateSlotStatus(slotId, newStatus) {
     return { error: 'Estado no válido' };
   }
 
+  // If new status is 'available', we should probably clear client data too,
+  // but let's keep this function simple and use liberateTimeSlot for that specific intent.
+  // However, if called from generic update, it might leave data.
+  // For safety, if status is becoming available, let's clear data.
+  
+  let updateData = { status: newStatus };
+  
+  if (newStatus === 'available') {
+     updateData = {
+       status: newStatus,
+       client_name: null,
+       client_email: null,
+       client_phone: null,
+       client_instagram: null
+     };
+  }
+
   const { error } = await supabase
     .from('time_slots')
-    .update({ status: newStatus })
+    .update(updateData)
     .eq('id', slotId);
 
   if (error) {
@@ -399,177 +449,146 @@ export async function initiateBooking(slotId) {
     return { error: 'Turno no encontrado' };
   }
   
-  // Si ya está en pending_payment, asumimos que es el mismo usuario refrescando
-  // o alguien que llegó justo antes. En un sistema real usaríamos sesiones.
-  // Por ahora, si es 'available' lo pasamos a 'pending_payment'.
-  if (slot.status === 'available') {
-      // START: Overlap Logic
-      // Check for overlapping slots on the same day and block them
-      const slotStart = new Date(slot.start_time);
-      const slotEnd = new Date(slotStart.getTime() + slot.duration_hours * 60 * 60 * 1000);
-
-      const startOfDay = new Date(slotStart);
-      startOfDay.setHours(0, 0, 0, 0);
-      const endOfDay = new Date(slotStart);
-      endOfDay.setHours(23, 59, 59, 999);
-
-      // Fetch other available slots for the same day
-      const { data: daySlots, error: daySlotsError } = await supabase
-        .from('time_slots')
-        .select('*')
-        .gte('start_time', startOfDay.toISOString())
-        .lte('start_time', endOfDay.toISOString())
-        .eq('status', 'available')
-        .neq('id', slotId);
-      
-      if (!daySlotsError && daySlots && daySlots.length > 0) {
-        const slotsToBlock = daySlots.filter(other => {
-          const otherStart = new Date(other.start_time);
-          const otherEnd = new Date(otherStart.getTime() + other.duration_hours * 60 * 60 * 1000);
-          
-          // Overlap: StartA < EndB && StartB < EndA
-          return slotStart < otherEnd && otherStart < slotEnd;
-        });
-
-        if (slotsToBlock.length > 0) {
-          console.log(`Blocking ${slotsToBlock.length} overlapping slots due to selection of ${slotId}`);
-          await supabase
-            .from('time_slots')
-            .update({ status: 'blocked' })
-            .in('id', slotsToBlock.map(s => s.id));
-        }
-      }
-      // END: Overlap Logic
-
-      const { error: updateError } = await supabase
-        .from('time_slots')
-        .update({ status: 'pending_payment' })
-        .eq('id', slotId);
-        
-      if (updateError) {
-        return { error: 'Error al iniciar reserva' };
-      }
-      
-      // Fetch updated slot
-      const { data: updatedSlot } = await supabase
-        .from('time_slots')
-        .select('*')
-        .eq('id', slotId)
-        .single();
-        
-      revalidatePath('/turnos/agendar');
-      return { success: true, slot: updatedSlot };
-  } else if (slot.status === 'pending_payment') {
-      // Allow viewing if already pending (concurrency issue ignored for simplicity)
-      return { success: true, slot };
-  } else {
-      return { error: 'El turno ya no está disponible' };
+  if (slot.status !== 'available') {
+    console.log('Slot not available:', slot.status);
+    return { error: 'El turno ya no está disponible' };
   }
+
+  // 2. Marcar como pendiente de pago
+  const { error: updateError } = await supabase
+    .from('time_slots')
+    .update({ status: 'pending_payment' })
+    .eq('id', slotId);
+    
+  if (updateError) {
+    console.error('Error updating status:', updateError);
+    return { error: 'Error al iniciar reserva' };
+  }
+  
+  revalidatePath('/turnos/agendar');
+  revalidatePath('/admin/agenda');
+  
+  return { success: true };
 }
 
 /**
- * Confirma los detalles del cliente para la reserva
+ * Confirma los detalles del cliente para una reserva (Público)
  */
 export async function confirmBookingDetails(slotId, formData) {
   const supabase = await createClient();
-  
-  const clientName = formData.get('name');
-  const clientEmail = formData.get('email');
-  const clientPhone = formData.get('phone');
-  const clientInstagram = formData.get('instagram');
+
+  const name = formData.get('name');
+  const email = formData.get('email');
+  const phone = formData.get('phone');
+  const instagram = formData.get('instagram');
+
+  if (!name || !email || !phone) {
+    return { error: 'Faltan datos obligatorios' };
+  }
+
+  // Verificar estado del turno
+  const { data: slot, error: fetchError } = await supabase
+    .from('time_slots')
+    .select('status')
+    .eq('id', slotId)
+    .single();
+
+  if (fetchError || !slot) {
+    return { error: 'Turno no encontrado' };
+  }
+
+  // Permitir actualización si está disponible o pendiente de pago
+  // (Disponible puede pasar si initiateBooking falló o se saltó, pero idealmente debe ser pending_payment)
+  if (slot.status !== 'pending_payment' && slot.status !== 'available') {
+    return { error: 'El turno no está disponible para reserva' };
+  }
 
   const { error } = await supabase
     .from('time_slots')
-    .update({ 
-      client_name: clientName,
-      client_email: clientEmail,
-      client_phone: clientPhone,
-      client_instagram: clientInstagram,
-      status: 'pending' // Pending admin approval
+    .update({
+      client_name: name,
+      client_email: email,
+      client_phone: phone,
+      client_instagram: instagram,
+      // No cambiamos el status aquí, sigue en pending_payment hasta que pague/confirme pago
+      // O podríamos pasarlo a 'pending' (esperando aprobación/pago)
+      status: 'pending' 
     })
     .eq('id', slotId);
 
   if (error) {
-    console.error('Error updating client details:', error);
-    return { error: 'Error al guardar datos: ' + error.message };
-  }
-
-  revalidatePath('/admin/agenda');
-  revalidatePath('/turnos/agendar');
-
-  return { success: true };
-}
-
-/**
- * Login action
- */
-export async function login(formData) {
-  try {
-    const supabase = await createClient()
-
-    const email = formData.get('email')
-    const password = formData.get('password')
-
-    console.log('Attempting login for:', email);
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (error) {
-      console.error('Login error from Supabase:', error);
-      return { error: error.message }
-    }
-
-    revalidatePath('/', 'layout')
-    return { success: true }
-  } catch (err) {
-    console.error('Unexpected error in login action:', err);
-    return { error: 'An unexpected error occurred: ' + err.message };
-  }
-}
-
-/**
- * Elimina todos los turnos de un mes específico (Admin)
- * @param {number} year Año (ej. 2026)
- * @param {number} month Mes (0-11, ej. 1 para Febrero)
- */
-export async function deleteMonthSlots(year, month) {
-  const supabase = await createClient();
-
-  // Validar sesión
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    return { error: 'No autorizado' };
-  }
-
-  // Construir fechas con zona horaria Argentina (-03:00)
-  // month es 0-indexed, así que para Febrero (1) usamos '02'
-  const startMonthStr = String(month + 1).padStart(2, '0');
-  const endMonthDate = new Date(year, month + 1, 1);
-  const endYear = endMonthDate.getFullYear();
-  const endMonthStr = String(endMonthDate.getMonth() + 1).padStart(2, '0');
-
-  const startTime = `${year}-${startMonthStr}-01T00:00:00-03:00`;
-  const endTime = `${endYear}-${endMonthStr}-01T00:00:00-03:00`;
-
-  console.log(`Deleting slots from ${startTime} to ${endTime}`);
-
-  const { error } = await supabase
-    .from('time_slots')
-    .delete()
-    .gte('start_time', startTime)
-    .lt('start_time', endTime);
-
-  if (error) {
-    console.error('Error deleting month slots:', error);
+    console.error('Error confirming booking details:', error);
     return { error: error.message };
   }
 
   revalidatePath('/admin/agenda');
-  revalidatePath('/turnos/agendar');
+  revalidatePath('/turnos/agendar'); // Opcional
   return { success: true };
 }
 
+/**
+ * Elimina todos los turnos de un mes específico (Admin)
+ */
+export async function deleteMonthSlots(year, month) {
+  try {
+    const supabase = await createClient();
+    
+    // Validar sesión
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return { error: 'No autorizado' };
+    }
 
+    // Calcular rango del mes
+    const startMonthStr = String(month + 1).padStart(2, '0');
+    const endMonthDate = new Date(year, month + 1, 1);
+    const endYear = endMonthDate.getFullYear();
+    const endMonthStr = String(endMonthDate.getMonth() + 1).padStart(2, '0');
+    
+    // Rango ISO con timezone -03:00 (aproximado para filtro)
+    const rangeStart = `${year}-${startMonthStr}-01T00:00:00-03:00`;
+    const rangeEnd = `${endYear}-${endMonthStr}-01T00:00:00-03:00`;
+
+    const { error } = await supabase
+      .from('time_slots')
+      .delete()
+      .gte('start_time', rangeStart)
+      .lt('start_time', rangeEnd);
+
+    if (error) {
+      console.error('Error deleting month slots:', error);
+      throw new Error(error.message);
+    }
+
+    revalidatePath('/admin/agenda');
+    revalidatePath('/turnos/agendar');
+    
+    return { success: true };
+
+  } catch (err) {
+    console.error('Error in deleteMonthSlots:', err);
+    return { error: err.message };
+  }
+}
+
+/**
+ * Login de administrador
+ */
+export async function login(formData) {
+  const supabase = await createClient();
+  
+  const email = formData.get('email');
+  const password = formData.get('password');
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    return { error: 'Credenciales inválidas' };
+  }
+
+  revalidatePath('/admin/agenda');
+  return { success: true };
+}

@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { createTimeSlot, getAllSlots, deleteTimeSlot, approveBooking, completeBooking, updateTimeSlot, updateSlotStatus, deleteMonthSlots, createBulkTimeSlots } from '@/app/actions/booking';
+import { createTimeSlot, getAllSlots, deleteTimeSlot, approveBooking, completeBooking, updateTimeSlot, updateSlotStatus, deleteMonthSlots, createBulkTimeSlots, liberateTimeSlot } from '@/app/actions/booking';
 import { SimpleCalendar as Calendar } from '@/components/ui/simple-calendar';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,7 +24,8 @@ import {
   Mail,
   Phone,
   ChevronDown,
-  Settings
+  Settings,
+  RotateCcw
 } from 'lucide-react';
 
 import {
@@ -243,6 +244,18 @@ function AgendaContent() {
       alert('Error al actualizar: ' + result.error);
     }
     setIsSubmitting(false);
+  }
+
+  async function handleLiberateSlot(slotId) {
+    if (!confirm('¿Estás seguro de que deseas liberar este turno? Se borrarán los datos del cliente y quedará disponible.')) {
+      return;
+    }
+    const result = await liberateTimeSlot(slotId);
+    if (result.success) {
+      await fetchSlots();
+    } else {
+      alert('Error al liberar: ' + result.error);
+    }
   }
 
   async function handleStatusUpdate(slotId, newStatus) {
@@ -677,6 +690,20 @@ function AgendaContent() {
                               
                               {/* Action Buttons */}
                               <div className="flex gap-2">
+                                {slot.status !== 'available' && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0 rounded-full hover:bg-green-500/20 text-zinc-500 hover:text-green-500 transition-colors cursor-pointer"
+                                    title="Liberar Turno"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleLiberateSlot(slot.id);
+                                    }}
+                                  >
+                                    <RotateCcw className="w-4 h-4" />
+                                  </Button>
+                                )}
                                 {slot.status === 'pending' && (
                                   <Button
                                     size="sm"
@@ -868,14 +895,28 @@ function AgendaContent() {
                               <div className="w-2 h-2 rounded-full bg-purple-500" /> Completado
                             </DropdownMenuItem>
                             <DropdownMenuSeparator className="bg-zinc-800" />
-                            <DropdownMenuItem onClick={() => handleStatusUpdate(slot.id, 'available')} className="focus:bg-zinc-800 focus:text-white cursor-pointer gap-2 text-zinc-400">
-                              <div className="w-2 h-2 rounded-full bg-green-500" /> Liberar (Disponible)
+                            <DropdownMenuItem onClick={() => handleLiberateSlot(slot.id)} className="focus:bg-zinc-800 focus:text-white cursor-pointer gap-2 text-zinc-400">
+                              <RotateCcw className="w-4 h-4 text-green-500" /> Liberar (Disponible)
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
+                          {slot.status !== 'available' && (
+                            <button
+                              type="button"
+                              className="h-8 w-8 p-0 rounded-full flex items-center justify-center hover:bg-green-500/20 text-zinc-500 hover:text-green-500 transition-colors cursor-pointer"
+                              title="Liberar Turno"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleLiberateSlot(slot.id);
+                              }}
+                            >
+                              <RotateCcw className="w-4 h-4" />
+                            </button>
+                          )}
                           <button
                             type="button"
                             className="h-8 w-8 p-0 rounded-full flex items-center justify-center hover:bg-blue-500/20 text-zinc-500 hover:text-blue-500 transition-colors cursor-pointer"
