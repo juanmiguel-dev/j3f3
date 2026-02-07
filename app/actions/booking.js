@@ -494,6 +494,9 @@ export async function confirmBookingDetails(slotId, formData) {
     return { error: 'Error al guardar datos: ' + error.message };
   }
 
+  revalidatePath('/admin/agenda');
+  revalidatePath('/turnos/agendar');
+
   return { success: true };
 }
 
