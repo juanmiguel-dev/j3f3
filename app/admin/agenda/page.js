@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { createTimeSlot, getAllSlots, deleteTimeSlot, approveBooking, completeBooking, updateTimeSlot, updateSlotStatus, deleteMonthSlots } from '@/app/actions/booking';
+import { createTimeSlot, getAllSlots, deleteTimeSlot, approveBooking, completeBooking, updateTimeSlot, updateSlotStatus, deleteMonthSlots, createBulkTimeSlots } from '@/app/actions/booking';
 import { SimpleCalendar as Calendar } from '@/components/ui/simple-calendar';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -124,80 +124,18 @@ function AgendaContent() {
     
     setIsSubmitting(true);
     try {
-      // month is 0-indexed in Date constructor
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      // Use Server Action for bulk creation to prevent timeouts and duplicates
+      const result = await createBulkTimeSlots(year, month);
       
-      let count = 0;
-      
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateObj = new Date(year, month, day);
-        const dayOfWeek = dateObj.getDay(); // 0=Sun, 1=Mon, 2=Tue, 3=Wed...
-        const dateStr = format(dateObj, 'yyyy-MM-dd');
-
-        // Monday (1) or Wednesday (3)
-        if (dayOfWeek === 1 || dayOfWeek === 3) {
-          // Slot 1: 15:00 (3h)
-          const fd1 = new FormData();
-          fd1.append('date', dateStr);
-          fd1.append('time', '15:00');
-          fd1.append('duration', '3');
-          fd1.append('price', '60000');
-          await createTimeSlot(fd1);
-
-          // Slot 2: 18:00 (3h)
-          const fd2 = new FormData();
-          fd2.append('date', dateStr);
-          fd2.append('time', '18:00');
-          fd2.append('duration', '3');
-          fd2.append('price', '60000');
-          await createTimeSlot(fd2);
-          
-          // Slot 3: 15:00 (6h) - Sesión Completa
-          const fd3 = new FormData();
-          fd3.append('date', dateStr);
-          fd3.append('time', '15:00');
-          fd3.append('duration', '6');
-          fd3.append('price', '120000');
-          await createTimeSlot(fd3);
-          
-          count += 3;
-        }
-
-        // Tuesday (2) or Thursday (4)
-        else if (dayOfWeek === 2 || dayOfWeek === 4) {
-          // Slot 1: 08:30 (3h)
-          const fd1 = new FormData();
-          fd1.append('date', dateStr);
-          fd1.append('time', '08:30');
-          fd1.append('duration', '3');
-          fd1.append('price', '60000');
-          await createTimeSlot(fd1);
-
-          // Slot 2: 11:30 (3h)
-          const fd2 = new FormData();
-          fd2.append('date', dateStr);
-          fd2.append('time', '11:30');
-          fd2.append('duration', '3');
-          fd2.append('price', '60000');
-          await createTimeSlot(fd2);
-          
-          // Slot 3: 08:30 (6h) - Sesión Completa
-          const fd3 = new FormData();
-          fd3.append('date', dateStr);
-          fd3.append('time', '08:30');
-          fd3.append('duration', '6');
-          fd3.append('price', '120000');
-          await createTimeSlot(fd3);
-          
-          count += 3;
-        }
+      if (result.success) {
+        alert(`Operación exitosa: ${result.count || 0} nuevos turnos generados para ${monthName} ${year}.` + (result.message ? `\n(${result.message})` : ''));
+        await fetchSlots();
+      } else {
+        alert('Error generando turnos: ' + result.error);
       }
-      
-      alert(`Se han generado ${count} turnos exitosamente para ${monthName} ${year}.`);
-      await fetchSlots();
     } catch (error) {
       console.error(error);
-      alert('Error generando turnos: ' + error.message);
+      alert('Error inesperado: ' + error.message);
     } finally {
       setIsSubmitting(false);
     }

@@ -2,6 +2,106 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { format } from 'date-fns';
+
+/**
+ * Genera turnos masivos para un mes (Server Action)
+ * Evita duplicados y timeouts.
+ */
+export async function createBulkTimeSlots(year, month) {
+  try {
+    const supabase = await createClient();
+    
+    // Validar sesión
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return { error: 'No autorizado' };
+    }
+
+    // Calcular rango del mes para buscar existentes
+    const startMonthStr = String(month + 1).padStart(2, '0');
+    const endMonthDate = new Date(year, month + 1, 1);
+    const endYear = endMonthDate.getFullYear();
+    const endMonthStr = String(endMonthDate.getMonth() + 1).padStart(2, '0');
+    
+    // Rango ISO con timezone -03:00 (aproximado para filtro)
+    const rangeStart = `${year}-${startMonthStr}-01T00:00:00-03:00`;
+    const rangeEnd = `${endYear}-${endMonthStr}-01T00:00:00-03:00`;
+
+    // Fetch existing slots to prevent duplicates
+    const { data: existingSlots } = await supabase
+      .from('time_slots')
+      .select('start_time, duration_hours')
+      .gte('start_time', rangeStart)
+      .lt('start_time', rangeEnd);
+
+    const slotsToInsert = [];
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Helper para añadir slot si no existe
+    const addSlot = (dateStr, timeStr, duration, price) => {
+      const startTimeISO = new Date(`${dateStr}T${timeStr}:00-03:00`).toISOString();
+      
+      // Check duplicate: Same start time AND same duration
+      const isDuplicate = existingSlots?.some(existing => 
+        existing.start_time === startTimeISO && 
+        existing.duration_hours === duration
+      );
+
+      if (!isDuplicate) {
+        slotsToInsert.push({
+          start_time: startTimeISO,
+          duration_hours: duration,
+          price_ars: price,
+          status: 'available'
+        });
+      }
+    };
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateObj = new Date(year, month, day);
+      const dayOfWeek = dateObj.getDay(); // 0=Sun, 1=Mon...
+      const dateStr = format(dateObj, 'yyyy-MM-dd');
+
+      // Lunes (1) o Miércoles (3)
+      if (dayOfWeek === 1 || dayOfWeek === 3) {
+        addSlot(dateStr, '15:00', 3, 60000);
+        addSlot(dateStr, '18:00', 3, 60000);
+        addSlot(dateStr, '15:00', 6, 120000);
+      }
+      // Martes (2) o Jueves (4)
+      else if (dayOfWeek === 2 || dayOfWeek === 4) {
+        addSlot(dateStr, '08:30', 3, 60000);
+        addSlot(dateStr, '11:30', 3, 60000);
+        addSlot(dateStr, '08:30', 6, 120000);
+      }
+    }
+
+    if (slotsToInsert.length === 0) {
+      return { success: true, count: 0, message: 'No se requirieron nuevos turnos (ya existían).' };
+    }
+
+    // Insertar en lotes de 50 para no saturar
+    const BATCH_SIZE = 50;
+    for (let i = 0; i < slotsToInsert.length; i += BATCH_SIZE) {
+      const batch = slotsToInsert.slice(i, i + BATCH_SIZE);
+      const { error } = await supabase.from('time_slots').insert(batch);
+      if (error) {
+        console.error('Error inserting batch:', error);
+        throw new Error(error.message);
+      }
+    }
+
+    revalidatePath('/admin/agenda');
+    revalidatePath('/turnos/agendar');
+    
+    return { success: true, count: slotsToInsert.length };
+
+  } catch (err) {
+    console.error('Error in createBulkTimeSlots:', err);
+    return { error: err.message };
+  }
+}
 
 /**
  * Crea un nuevo turno en la base de datos

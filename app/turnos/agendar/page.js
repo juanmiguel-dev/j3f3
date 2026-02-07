@@ -198,34 +198,50 @@ export default function AgendarPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className="group relative bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-zinc-600 transition-all duration-300"
+                        className="group relative overflow-hidden bg-zinc-900/80 border border-zinc-800 rounded-2xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.01] hover:border-green-500/30"
                       >
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                          <div>
-                            <div className="flex items-center gap-3 mb-2">
-                              <span className="text-2xl font-bold text-white font-mono">
+                        {/* Status Stripe */}
+                        <div className="absolute top-0 left-0 w-1.5 h-full bg-green-500" />
+
+                        <div className="p-6 pl-8">
+                          <div className="flex justify-between items-start mb-4">
+                            <div className="flex flex-col">
+                              <span className="text-3xl font-black text-white tracking-tight flex items-center gap-2">
                                 {format(startTime, 'HH:mm')}
+                                <span className="text-sm font-medium text-zinc-500 uppercase tracking-normal mt-1.5">Hs</span>
                               </span>
-                              <span className="text-zinc-500 font-medium">
-                                - {format(endTime, 'HH:mm')}
+                              <span className="text-sm text-zinc-400 font-medium mt-1">
+                                Duración: {slot.duration_hours || 3} Horas
                               </span>
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-zinc-400">
-                              <Info className="w-4 h-4" />
-                              <span>Disponible para reservar</span>
+                            
+                            <div className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 bg-green-500/10 text-green-400 border border-green-500/20">
+                              <CheckCircle2 className="w-3 h-3" />
+                              LIBRE
                             </div>
                           </div>
-                          
-                          <Link 
-                            href={`/reserva/${slot.id}`} 
-                            className={cn(
-                              buttonVariants({ variant: "default" }),
-                              "w-full sm:w-auto bg-white text-black hover:bg-zinc-200 font-bold rounded-xl h-12 px-8 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all duration-300"
-                            )}
-                          >
-                            Reservar
-                            <ArrowRight className="w-4 h-4 ml-2" />
-                          </Link>
+
+                          <div className="border-t border-zinc-800/50 my-4 pt-4">
+                            <div className="flex flex-col sm:flex-row justify-between items-end gap-4">
+                              <div>
+                                <p className="text-xs text-zinc-500 uppercase font-semibold mb-1">Valor Sesión</p>
+                                <p className="text-lg font-bold text-white font-mono">
+                                  ${(slot.price_ars || 0).toLocaleString('es-AR')}
+                                </p>
+                              </div>
+                              
+                              <Link 
+                                href={`/reserva/${slot.id}`} 
+                                className={cn(
+                                  buttonVariants({ variant: "default" }),
+                                  "w-full sm:w-auto bg-white text-black hover:bg-zinc-200 font-bold rounded-xl h-10 px-6 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all duration-300"
+                                )}
+                              >
+                                Reservar
+                                <ArrowRight className="w-4 h-4 ml-2" />
+                              </Link>
+                            </div>
+                          </div>
                         </div>
                       </motion.div>
                     )})}
