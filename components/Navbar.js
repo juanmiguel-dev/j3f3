@@ -78,7 +78,7 @@ export default function Navbar() {
             <button
               onClick={() => setIsOpen(!isOpen)}
               type="button"
-              className="inline-flex items-center justify-center p-2 text-white hover:text-gray-300 focus:outline-none"
+              className="inline-flex items-center justify-center p-2 text-white hover:text-gray-300 focus:outline-none cursor-pointer"
             >
               <span className="sr-only">Abrir menú</span>
               {isOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
@@ -114,7 +114,7 @@ export default function Navbar() {
               </Link>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 text-white hover:text-gray-300 transition-colors"
+                className="p-2 text-white hover:text-gray-300 transition-colors cursor-pointer"
               >
                 <X className="w-8 h-8" />
               </button>

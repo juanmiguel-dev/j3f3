@@ -247,14 +247,14 @@ export default function NewProjectPage() {
                               e.stopPropagation();
                               fileInputRef.current?.click();
                             }}
-                            className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-full backdrop-blur-sm transition-colors"
+                            className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-full backdrop-blur-sm transition-colors cursor-pointer"
                             title="Cambiar imagen"
                           >
                             <Upload className="w-5 h-5" />
                           </button>
                           <button 
                             onClick={removeFile}
-                            className="bg-red-500/80 hover:bg-red-500 text-white p-2 rounded-full backdrop-blur-sm transition-colors"
+                            className="bg-red-500/80 hover:bg-red-500 text-white p-2 rounded-full backdrop-blur-sm transition-colors cursor-pointer"
                             title="Eliminar imagen"
                           >
                             <X className="w-5 h-5" />
@@ -273,7 +273,7 @@ export default function NewProjectPage() {
               <div className="flex justify-end mt-12 pt-6 border-t border-zinc-800">
                 <button
                   onClick={handleNext}
-                  className="bg-white text-black hover:bg-zinc-200 px-8 py-3 rounded-lg font-bold flex items-center gap-2 transition-colors"
+                  className="bg-white text-black hover:bg-zinc-200 px-8 py-3 rounded-lg font-bold flex items-center gap-2 transition-colors cursor-pointer"
                 >
                   SIGUIENTE <ArrowRight className="w-5 h-5" />
                 </button>
@@ -290,7 +290,7 @@ export default function NewProjectPage() {
               <div className="flex justify-between items-center mb-6">
                  <button
                   onClick={() => setStep(1)}
-                  className="text-zinc-400 hover:text-white flex items-center gap-2 transition-colors font-medium"
+                  className="text-zinc-400 hover:text-white flex items-center gap-2 transition-colors font-medium cursor-pointer"
                 >
                   <ArrowLeft className="w-5 h-5" /> Volver a detalles
                 </button>

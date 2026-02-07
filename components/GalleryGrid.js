@@ -70,7 +70,7 @@ export default function GalleryGrid() {
           >
             <button
               onClick={() => setSelectedId(null)}
-              className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-[110]"
+              className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-[110] cursor-pointer"
             >
               <X size={32} />
             </button>
@@ -78,7 +78,7 @@ export default function GalleryGrid() {
             {/* Navegación Izquierda */}
             <button
               onClick={handlePrev}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition-colors z-[110] hidden sm:block"
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition-colors z-[110] hidden sm:block cursor-pointer"
             >
               <ChevronLeft size={40} />
             </button>
@@ -86,7 +86,7 @@ export default function GalleryGrid() {
             {/* Navegación Derecha */}
             <button
               onClick={handleNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition-colors z-[110] hidden sm:block"
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition-colors z-[110] hidden sm:block cursor-pointer"
             >
               <ChevronRight size={40} />
             </button>
