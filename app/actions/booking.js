@@ -231,10 +231,16 @@ export async function updateSlotStatus(slotId, newStatus) {
 export async function getAvailableSlots() {
   const supabase = await createClient();
   
+  // Filter for slots from today onwards (in user's timezone perspective, or at least UTC now)
+  // To be safe, we can filter from yesterday to avoid timezone edge cases excluding today's slots
+  const now = new Date();
+  now.setHours(0, 0, 0, 0); // Start of today
+
   const { data, error } = await supabase
     .from('time_slots')
     .select('*')
     .eq('status', 'available')
+    .gte('start_time', now.toISOString())
     .order('start_time', { ascending: true });
     
   if (error) {
