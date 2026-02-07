@@ -337,7 +337,7 @@ function AgendaContent() {
 
                 <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                   <DialogTrigger asChild>
-                    <Button className="w-full bg-white text-black hover:bg-zinc-200 font-bold py-6 text-base shadow-lg shadow-white/5 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                    <Button className="w-full bg-white text-black hover:bg-zinc-200 font-bold py-6 text-base shadow-lg shadow-white/5 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
                       <Plus className="w-5 h-5 mr-2" />
                       Crear Nuevo Turno
                     </Button>
@@ -505,7 +505,7 @@ function AgendaContent() {
                                   <Button
                                     size="sm"
                                     variant="ghost"
-                                    className="h-8 w-8 p-0 rounded-full hover:bg-green-500/20 text-zinc-500 hover:text-green-500 transition-colors"
+                                    className="h-8 w-8 p-0 rounded-full hover:bg-green-500/20 text-zinc-500 hover:text-green-500 transition-colors cursor-pointer"
                                     title="Aprobar Turno"
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -519,7 +519,7 @@ function AgendaContent() {
                                   <Button
                                     size="sm"
                                     variant="ghost"
-                                    className="h-8 w-8 p-0 rounded-full hover:bg-purple-500/20 text-zinc-500 hover:text-purple-500 transition-colors"
+                                    className="h-8 w-8 p-0 rounded-full hover:bg-purple-500/20 text-zinc-500 hover:text-purple-500 transition-colors cursor-pointer"
                                     title="Marcar como Completado"
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -532,7 +532,7 @@ function AgendaContent() {
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  className="h-8 w-8 p-0 rounded-full hover:bg-blue-500/20 text-zinc-500 hover:text-blue-500 transition-colors"
+                                  className="h-8 w-8 p-0 rounded-full hover:bg-blue-500/20 text-zinc-500 hover:text-blue-500 transition-colors cursor-pointer"
                                   title="Editar Turno"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -545,7 +545,7 @@ function AgendaContent() {
                                 <Button 
                                   size="sm" 
                                   variant="ghost" 
-                                  className="h-8 w-8 p-0 rounded-full hover:bg-red-500/20 text-zinc-500 hover:text-red-500 transition-colors"
+                                  className="h-8 w-8 p-0 rounded-full hover:bg-red-500/20 text-zinc-500 hover:text-red-500 transition-colors cursor-pointer"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setSlotToDelete(slot);
@@ -645,7 +645,7 @@ function AgendaContent() {
                       <td className="px-6 py-4">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <button className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border transition-all flex items-center gap-2 hover:opacity-80 ${getStatusColor(slot.status)}`}>
+                            <button className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border transition-all flex items-center gap-2 hover:opacity-80 cursor-pointer ${getStatusColor(slot.status)}`}>
                               {getStatusLabel(slot.status)}
                               <ChevronDown className="w-3 h-3 opacity-50" />
                             </button>
@@ -677,8 +677,9 @@ function AgendaContent() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-8 w-8 p-0 rounded-full hover:bg-blue-500/20 text-zinc-500 hover:text-blue-500 transition-colors"
-                            onClick={() => {
+                            className="h-8 w-8 p-0 rounded-full hover:bg-blue-500/20 text-zinc-500 hover:text-blue-500 transition-colors cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setSlotToEdit(slot);
                               setIsEditModalOpen(true);
                             }}
@@ -688,8 +689,9 @@ function AgendaContent() {
                           <Button 
                             size="sm" 
                             variant="ghost" 
-                            className="h-8 w-8 p-0 rounded-full hover:bg-red-500/20 text-zinc-500 hover:text-red-500 transition-colors"
-                            onClick={() => {
+                            className="h-8 w-8 p-0 rounded-full hover:bg-red-500/20 text-zinc-500 hover:text-red-500 transition-colors cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setSlotToDelete(slot);
                               setIsDeleteModalOpen(true);
                             }}
