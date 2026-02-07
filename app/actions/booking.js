@@ -18,8 +18,8 @@ export async function createTimeSlot(formData) {
     
     console.log('Data:', { date, time, duration, price });
 
-    // Combinar fecha y hora para el timestamp
-    const startTime = new Date(`${date}T${time}:00`);
+    // Combinar fecha y hora para el timestamp con zona horaria de Argentina (-03:00)
+    const startTime = new Date(`${date}T${time}:00-03:00`);
     
     // Validar sesión (solo admin puede crear)
     const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -131,8 +131,8 @@ export async function updateTimeSlot(slotId, formData) {
   const clientInstagram = formData.get('client_instagram');
   const status = formData.get('status');
 
-  // Combinar fecha y hora para el timestamp
-  const startTime = new Date(`${date}T${time}:00`);
+  // Combinar fecha y hora para el timestamp con zona horaria de Argentina (-03:00)
+  const startTime = new Date(`${date}T${time}:00-03:00`);
 
   const updateData = {
     start_time: startTime.toISOString(),
@@ -425,6 +425,48 @@ export async function login(formData) {
     console.error('Unexpected error in login action:', err);
     return { error: 'An unexpected error occurred: ' + err.message };
   }
+}
+
+/**
+ * Elimina todos los turnos de un mes específico (Admin)
+ * @param {number} year Año (ej. 2026)
+ * @param {number} month Mes (0-11, ej. 1 para Febrero)
+ */
+export async function deleteMonthSlots(year, month) {
+  const supabase = await createClient();
+
+  // Validar sesión
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    return { error: 'No autorizado' };
+  }
+
+  // Construir fechas con zona horaria Argentina (-03:00)
+  // month es 0-indexed, así que para Febrero (1) usamos '02'
+  const startMonthStr = String(month + 1).padStart(2, '0');
+  const endMonthDate = new Date(year, month + 1, 1);
+  const endYear = endMonthDate.getFullYear();
+  const endMonthStr = String(endMonthDate.getMonth() + 1).padStart(2, '0');
+
+  const startTime = `${year}-${startMonthStr}-01T00:00:00-03:00`;
+  const endTime = `${endYear}-${endMonthStr}-01T00:00:00-03:00`;
+
+  console.log(`Deleting slots from ${startTime} to ${endTime}`);
+
+  const { error } = await supabase
+    .from('time_slots')
+    .delete()
+    .gte('start_time', startTime)
+    .lt('start_time', endTime);
+
+  if (error) {
+    console.error('Error deleting month slots:', error);
+    return { error: error.message };
+  }
+
+  revalidatePath('/admin/agenda');
+  revalidatePath('/turnos/agendar');
+  return { success: true };
 }
 
 

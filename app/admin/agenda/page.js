@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { createTimeSlot, getAllSlots, deleteTimeSlot, approveBooking, completeBooking, updateTimeSlot, updateSlotStatus } from '@/app/actions/booking';
+import { createTimeSlot, getAllSlots, deleteTimeSlot, approveBooking, completeBooking, updateTimeSlot, updateSlotStatus, deleteMonthSlots } from '@/app/actions/booking';
 import { SimpleCalendar as Calendar } from '@/components/ui/simple-calendar';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,7 +23,8 @@ import {
   Instagram,
   Mail,
   Phone,
-  ChevronDown
+  ChevronDown,
+  Settings
 } from 'lucide-react';
 
 import {
@@ -80,6 +81,26 @@ function AgendaContent() {
   const [slotToDelete, setSlotToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  // Bulk Operation State
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+  const [bulkYear, setBulkYear] = useState('2026');
+  const [bulkMonth, setBulkMonth] = useState('1'); // Default Febrero
+
+  const months = [
+    { value: '0', label: 'Enero' },
+    { value: '1', label: 'Febrero' },
+    { value: '2', label: 'Marzo' },
+    { value: '3', label: 'Abril' },
+    { value: '4', label: 'Mayo' },
+    { value: '5', label: 'Junio' },
+    { value: '6', label: 'Julio' },
+    { value: '7', label: 'Agosto' },
+    { value: '8', label: 'Septiembre' },
+    { value: '9', label: 'Octubre' },
+    { value: '10', label: 'Noviembre' },
+    { value: '11', label: 'Diciembre' },
+  ];
+
   async function fetchSlots() {
     const data = await getAllSlots();
     setSlots(data);
@@ -94,12 +115,16 @@ function AgendaContent() {
   }, []);
 
   async function handleBulkGenerate() {
-    if (!confirm('¿Generar turnos automáticos para Febrero 2026?\n\nLunes y Miércoles:\n- 15:00 a 18:00 (3h)\n- 18:00 a 21:00 (3h)\n- 15:00 a 21:00 (6h - Completa)\n\nMartes y Jueves:\n- 08:30 a 11:30 (3h)\n- 11:30 a 14:30 (3h)\n- 08:30 a 14:30 (6h - Completa)')) return;
+    const year = parseInt(bulkYear);
+    const month = parseInt(bulkMonth);
+    
+    const monthName = months.find(m => m.value === bulkMonth)?.label || 'Mes seleccionado';
+
+    if (!confirm(`¿Generar turnos automáticos para ${monthName} ${year}?\n\nLunes y Miércoles:\n- 15:00 a 18:00 (3h)\n- 18:00 a 21:00 (3h)\n- 15:00 a 21:00 (6h - Completa)\n\nMartes y Jueves:\n- 08:30 a 11:30 (3h)\n- 11:30 a 14:30 (3h)\n- 08:30 a 14:30 (6h - Completa)`)) return;
     
     setIsSubmitting(true);
     try {
-      const year = 2026;
-      const month = 1; // February (0-indexed)
+      // month is 0-indexed in Date constructor
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       
       let count = 0;
@@ -168,11 +193,35 @@ function AgendaContent() {
         }
       }
       
-      alert(`Se han generado ${count} turnos exitosamente.`);
+      alert(`Se han generado ${count} turnos exitosamente para ${monthName} ${year}.`);
       await fetchSlots();
     } catch (error) {
       console.error(error);
       alert('Error generando turnos: ' + error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleDeleteMonth() {
+    const year = parseInt(bulkYear);
+    const month = parseInt(bulkMonth);
+    const monthName = months.find(m => m.value === bulkMonth)?.label || 'Mes seleccionado';
+
+    if (!confirm(`¿ESTÁS SEGURO? Esto eliminará TODOS los turnos de ${monthName} ${year}. Esta acción no se puede deshacer.`)) return;
+    
+    setIsSubmitting(true);
+    try {
+      const result = await deleteMonthSlots(year, month);
+      if (result.success) {
+        alert(`Turnos de ${monthName} ${year} eliminados correctamente.`);
+        await fetchSlots();
+      } else {
+        alert('Error al eliminar turnos: ' + result.error);
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error: ' + error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -342,14 +391,81 @@ function AgendaContent() {
             </div>
             
             <div className="flex gap-4 items-center">
-              <Button 
-                onClick={handleBulkGenerate}
-                disabled={isSubmitting}
-                variant="outline"
-                className="hidden md:flex border-zinc-800 hover:bg-zinc-800 text-zinc-400 hover:text-white cursor-pointer"
-              >
-                ⚡ Generar Febrero
-              </Button>
+              <Dialog open={isBulkModalOpen} onOpenChange={setIsBulkModalOpen}>
+                <DialogTrigger asChild>
+                  <Button 
+                    variant="outline"
+                    className="hidden md:flex border-zinc-800 hover:bg-zinc-800 text-zinc-400 hover:text-white cursor-pointer"
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    Gestión Mensual
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-zinc-950 border-zinc-800 text-white sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="text-xl">Gestión Mensual de Turnos</DialogTitle>
+                    <DialogDescription className="text-zinc-400">
+                      Selecciona un mes y año para generar o eliminar turnos de forma masiva.
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <div className="space-y-6 mt-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-zinc-400">Mes</label>
+                        <Select value={bulkMonth} onValueChange={setBulkMonth}>
+                          <SelectTrigger className="w-full bg-zinc-900 border-zinc-800 text-white">
+                            <SelectValue placeholder="Mes" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
+                            {months.map((m) => (
+                              <SelectItem key={m.value} value={m.value} className="focus:bg-zinc-800 focus:text-white cursor-pointer">
+                                {m.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-zinc-400">Año</label>
+                        <Select value={bulkYear} onValueChange={setBulkYear}>
+                          <SelectTrigger className="w-full bg-zinc-900 border-zinc-800 text-white">
+                            <SelectValue placeholder="Año" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
+                            {['2025', '2026', '2027'].map((y) => (
+                              <SelectItem key={y} value={y} className="focus:bg-zinc-800 focus:text-white cursor-pointer">
+                                {y}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                      <Button 
+                        onClick={handleBulkGenerate}
+                        disabled={isSubmitting}
+                        className="w-full bg-white text-black hover:bg-zinc-200 font-bold cursor-pointer"
+                      >
+                        ⚡ Generar Turnos Masivos
+                      </Button>
+                      
+                      <Button 
+                        onClick={handleDeleteMonth}
+                        disabled={isSubmitting}
+                        variant="destructive"
+                        className="w-full bg-red-900/20 text-red-400 border border-red-900/50 hover:bg-red-900/40 hover:text-red-300 cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Borrar Todos los Turnos del Mes
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
               {activeTab === 'calendar' && (
                 <div className="bg-zinc-900/50 border border-zinc-800 px-4 py-2 rounded-lg backdrop-blur-sm">
                   <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold block">Total del Día</span>
