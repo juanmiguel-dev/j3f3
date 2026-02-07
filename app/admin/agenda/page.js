@@ -918,6 +918,7 @@ function AgendaContent() {
                 </div>
               )}
             </div>
+          </div>
           </motion.div>
         )}
       </div>
