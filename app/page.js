@@ -1,10 +1,9 @@
 'use client';
 
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Volume2, VolumeX } from 'lucide-react';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import SacredGeometryBackground from '@/components/SacredGeometryBackground';
 
 function CrazyVideo() {
@@ -215,7 +214,7 @@ export default function Home() {
                 className="border-l-4 border-white pl-6 py-2"
               >
                 <p className="text-2xl md:text-3xl font-bold text-gray-200 leading-tight">
-                  "Me parece un <span className="text-white bg-red-600/20 px-1">acto de rebeldía</span>."
+                  &quot;Me parece un <span className="text-white bg-red-600/20 px-1">acto de rebeldía</span>.&quot;
                 </p>
               </motion.blockquote>
 
@@ -235,8 +234,8 @@ export default function Home() {
                 className="bg-white/5 p-6 rounded-lg backdrop-blur-md border border-white/10"
               >
                 <p className="text-gray-300 italic font-serif text-xl">
-                  "Lo único que me hace estar en paz con mi cerebro es dibujar. 
-                  No recuerdo no hacerlo."
+                  &quot;Lo único que me hace estar en paz con mi cerebro es dibujar. 
+                  No recuerdo no hacerlo.&quot;
                 </p>
                 <p className="text-right text-sm font-bold text-gray-500 mt-4 uppercase tracking-widest">
                   — Jeremías

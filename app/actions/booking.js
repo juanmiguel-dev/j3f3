@@ -23,7 +23,7 @@ export async function createTimeSlot(formData) {
     return { error: 'No autorizado' };
   }
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('time_slots')
     .insert([
       {
@@ -164,6 +164,39 @@ export async function completeBooking(slotId) {
 
   if (error) {
     console.error('Error completing slot:', error);
+    return { error: error.message };
+  }
+
+  revalidatePath('/admin/agenda');
+  revalidatePath('/turnos/agendar');
+  return { success: true };
+}
+
+/**
+ * Actualiza el estado de un turno (Admin)
+ */
+export async function updateSlotStatus(slotId, newStatus) {
+  const supabase = await createClient();
+
+  // Validar sesión
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    return { error: 'No autorizado' };
+  }
+
+  // Validar status permitido
+  const validStatuses = ['available', 'pending', 'confirmed', 'completed', 'pending_payment'];
+  if (!validStatuses.includes(newStatus)) {
+    return { error: 'Estado no válido' };
+  }
+
+  const { error } = await supabase
+    .from('time_slots')
+    .update({ status: newStatus })
+    .eq('id', slotId);
+
+  if (error) {
+    console.error('Error updating status:', error);
     return { error: error.message };
   }
 
@@ -330,29 +363,4 @@ export async function login(formData) {
   }
 }
 
-/**
- * Elimina un turno (solo admin)
- */
-export async function deleteTimeSlot(slotId) {
-  const supabase = await createClient();
 
-  // Validar sesión
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    return { error: 'No autorizado' };
-  }
-
-  const { error } = await supabase
-    .from('time_slots')
-    .delete()
-    .eq('id', slotId);
-
-  if (error) {
-    console.error('Error deleting slot:', error);
-    return { error: error.message };
-  }
-
-  revalidatePath('/admin/agenda');
-  revalidatePath('/turnos/agendar');
-  return { success: true };
-}
