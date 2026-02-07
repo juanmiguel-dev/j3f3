@@ -453,12 +453,12 @@ function AgendaContent() {
               }`}
             >
               <CheckCircle2 className="w-4 h-4 text-blue-400" />
-              Confirmados
-              {slots.filter(s => s.status === 'confirmed').length > 0 && (
+              Agendados
+              {slots.filter(s => ['confirmed', 'pending', 'pending_payment', 'completed'].includes(s.status)).length > 0 && (
                 <span className={`ml-1 text-xs px-2 py-0.5 rounded-full ${
                   activeTab === 'confirmed' ? 'bg-blue-500/20 text-blue-200' : 'bg-zinc-800 text-zinc-400'
                 }`}>
-                  {slots.filter(s => s.status === 'confirmed').length}
+                  {slots.filter(s => ['confirmed', 'pending', 'pending_payment', 'completed'].includes(s.status)).length}
                 </span>
               )}
             </button>
@@ -753,7 +753,7 @@ function AgendaContent() {
                 {activeTab === 'confirmed' ? (
                   <>
                     <CheckCircle2 className="w-5 h-5 text-blue-500" />
-                    Turnos Confirmados
+                    Turnos Agendados
                   </>
                 ) : (
                   <>
@@ -765,7 +765,7 @@ function AgendaContent() {
               <div className="text-sm text-zinc-400">
                 Total: <span className="text-white font-mono font-bold">
                   {activeTab === 'confirmed' 
-                    ? slots.filter(s => s.status === 'confirmed').length 
+                    ? slots.filter(s => ['confirmed', 'pending', 'pending_payment', 'completed'].includes(s.status)).length 
                     : slots.length}
                 </span>
               </div>
@@ -786,7 +786,7 @@ function AgendaContent() {
                   </thead>
                   <tbody className="divide-y divide-zinc-800/50">
                     {(activeTab === 'confirmed' 
-                        ? slots.filter(s => s.status === 'confirmed') 
+                        ? slots.filter(s => ['confirmed', 'pending', 'pending_payment', 'completed'].includes(s.status)) 
                         : slots
                       )
                       .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime()) // Ascending order

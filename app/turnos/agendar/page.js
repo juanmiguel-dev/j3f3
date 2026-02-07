@@ -35,11 +35,15 @@ export default function AgendarPage() {
         // Auto-select first available date if exists
         if (data && data.length > 0) {
           const sortedSlots = [...data].sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
-          const firstSlot = sortedSlots[0];
-          const firstDate = new Date(firstSlot.start_time);
           
-          setDate(firstDate);
-          setCalendarMonth(firstDate);
+          // Try to find first available slot
+          const firstAvailableSlot = sortedSlots.find(s => s.status === 'available');
+          const targetSlot = firstAvailableSlot || sortedSlots[0]; // Fallback to first slot if none available
+          
+          const targetDate = new Date(targetSlot.start_time);
+          
+          setDate(targetDate);
+          setCalendarMonth(targetDate);
         } else {
           setDate(new Date());
         }
@@ -73,7 +77,7 @@ export default function AgendarPage() {
   const hasAvailableSlots = (day) => {
     return slots.some(slot => {
       const slotDate = new Date(slot.start_time);
-      return slotDate.toDateString() === day.toDateString();
+      return slot.status === 'available' && slotDate.toDateString() === day.toDateString();
     });
   };
 
@@ -195,34 +199,44 @@ export default function AgendarPage() {
                       // Validate dates to prevent hydration errors
                       if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) return null;
 
+                      const isAvailable = slot.status === 'available';
+
                       return (
                       <motion.div
                         key={slot.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className={`group relative overflow-hidden bg-zinc-900/80 border border-zinc-800 rounded-2xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.01] hover:border-green-500/30 ${
+                        className={`group relative overflow-hidden rounded-2xl transition-all duration-300 border ${
+                          isAvailable 
+                            ? 'bg-zinc-900/80 border-zinc-800 hover:shadow-2xl hover:scale-[1.01] hover:border-green-500/30' 
+                            : 'bg-zinc-900/40 border-zinc-800/50 opacity-60'
+                        } ${
                           (slot.duration_hours || 0) >= 6 ? 'md:col-span-2' : ''
                         }`}
                       >
                         {/* Status Stripe */}
-                        <div className="absolute top-0 left-0 w-1.5 h-full bg-green-500" />
+                        <div className={`absolute top-0 left-0 w-1.5 h-full ${isAvailable ? 'bg-green-500' : 'bg-zinc-700'}`} />
 
                         <div className="p-6 pl-8">
                           <div className="flex justify-between items-start mb-4">
                             <div className="flex flex-col">
-                              <span className="text-3xl font-black text-white tracking-tight flex items-center gap-2">
+                              <span className={`text-3xl font-black tracking-tight flex items-center gap-2 ${isAvailable ? 'text-white' : 'text-zinc-500'}`}>
                                 {format(startTime, 'HH:mm')}
-                                <span className="text-sm font-medium text-zinc-500 uppercase tracking-normal mt-1.5">Hs</span>
+                                <span className="text-sm font-medium text-zinc-600 uppercase tracking-normal mt-1.5">Hs</span>
                               </span>
-                              <span className="text-sm text-zinc-400 font-medium mt-1">
+                              <span className="text-sm text-zinc-500 font-medium mt-1">
                                 Duración: {slot.duration_hours || 3} Horas
                               </span>
                             </div>
                             
-                            <div className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 bg-green-500/10 text-green-400 border border-green-500/20">
-                              <CheckCircle2 className="w-3 h-3" />
-                              LIBRE
+                            <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 border ${
+                              isAvailable 
+                                ? 'bg-green-500/10 text-green-400 border-green-500/20' 
+                                : 'bg-zinc-800 text-zinc-500 border-zinc-700'
+                            }`}>
+                              {isAvailable ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                              {isAvailable ? 'LIBRE' : 'OCUPADO'}
                             </div>
                           </div>
 
@@ -230,21 +244,31 @@ export default function AgendarPage() {
                             <div className="flex flex-col sm:flex-row justify-between items-end gap-4">
                               <div>
                                 <p className="text-xs text-zinc-500 uppercase font-semibold mb-1">Valor Sesión</p>
-                                <p className="text-lg font-bold text-white font-mono">
+                                <p className={`text-lg font-bold font-mono ${isAvailable ? 'text-white' : 'text-zinc-500'}`}>
                                   ${(slot.price_ars || 0).toLocaleString('es-AR')}
                                 </p>
                               </div>
                               
-                              <Link 
-                                href={`/reserva/${slot.id}`} 
-                                className={cn(
-                                  buttonVariants({ variant: "default" }),
-                                  "w-full sm:w-auto bg-white text-black hover:bg-zinc-200 font-bold rounded-xl h-10 px-6 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all duration-300"
-                                )}
-                              >
-                                Reservar
-                                <ArrowRight className="w-4 h-4 ml-2" />
-                              </Link>
+                              {isAvailable ? (
+                                <Link 
+                                  href={`/reserva/${slot.id}`} 
+                                  className={cn(
+                                    buttonVariants({ variant: "default" }),
+                                    "w-full sm:w-auto bg-white text-black hover:bg-zinc-200 font-bold rounded-xl h-10 px-6 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all duration-300"
+                                  )}
+                                >
+                                  Reservar
+                                  <ArrowRight className="w-4 h-4 ml-2" />
+                                </Link>
+                              ) : (
+                                <Button 
+                                  disabled 
+                                  variant="outline"
+                                  className="w-full sm:w-auto bg-zinc-900/50 text-zinc-600 border-zinc-800 font-bold rounded-xl h-10 px-6 cursor-not-allowed hover:bg-zinc-900/50"
+                                >
+                                  No disponible
+                                </Button>
+                              )}
                             </div>
                           </div>
                         </div>

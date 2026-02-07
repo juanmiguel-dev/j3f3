@@ -339,7 +339,7 @@ export async function getAvailableSlots() {
   const { data, error } = await supabase
     .from('time_slots')
     .select('*')
-    .eq('status', 'available')
+    // .eq('status', 'available') // Allow all statuses to be visible in frontend
     .gte('start_time', now.toISOString())
     .order('start_time', { ascending: true });
     
