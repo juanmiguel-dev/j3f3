@@ -276,14 +276,14 @@ function AgendaContent() {
             </button>
             <button
               onClick={() => setActiveTab('list')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 activeTab === 'list' 
                   ? 'bg-zinc-800 text-white shadow-lg' 
                   : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
               }`}
             >
               <List className="w-4 h-4" />
-              Lista de Turnos
+              Lista de Turnos (v2)
               {slots.filter(s => s.status !== 'available').length > 0 && (
                 <span className={`ml-1 text-xs px-2 py-0.5 rounded-full ${
                   activeTab === 'list' ? 'bg-zinc-700 text-white' : 'bg-zinc-800 text-zinc-400'
@@ -674,30 +674,36 @@ function AgendaContent() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0 rounded-full hover:bg-blue-500/20 text-zinc-500 hover:text-blue-500 transition-colors cursor-pointer"
+                          <button
+                            type="button"
+                            className="h-8 w-8 p-0 rounded-full flex items-center justify-center hover:bg-blue-500/20 text-zinc-500 hover:text-blue-500 transition-colors cursor-pointer"
+                            title="Editar Turno"
+                            style={{ cursor: 'pointer' }}
                             onClick={(e) => {
+                              e.preventDefault();
                               e.stopPropagation();
+                              console.log('Edit clicked for', slot.id);
                               setSlotToEdit(slot);
                               setIsEditModalOpen(true);
                             }}
                           >
                             <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            className="h-8 w-8 p-0 rounded-full hover:bg-red-500/20 text-zinc-500 hover:text-red-500 transition-colors cursor-pointer"
+                          </button>
+                          <button
+                            type="button"
+                            className="h-8 w-8 p-0 rounded-full flex items-center justify-center hover:bg-red-500/20 text-zinc-500 hover:text-red-500 transition-colors cursor-pointer"
+                            title="Eliminar Turno"
+                            style={{ cursor: 'pointer' }}
                             onClick={(e) => {
+                              e.preventDefault();
                               e.stopPropagation();
+                              console.log('Delete clicked for', slot.id);
                               setSlotToDelete(slot);
                               setIsDeleteModalOpen(true);
                             }}
                           >
                             <Trash2 className="w-4 h-4" />
-                          </Button>
+                          </button>
                         </div>
                       </td>
                     </tr>
